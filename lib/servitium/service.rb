@@ -5,7 +5,7 @@ module Servitium
     include ActiveSupport::Callbacks
     attr_reader :context
 
-    alias ctx context
+    alias_method :ctx, :context
 
     define_callbacks :perform
     private_class_method :new
@@ -70,7 +70,8 @@ module Servitium
     class << self
       def transactional(value = nil)
         @transactional = value unless value.nil?
-        @transactional.nil? || @transactional == true
+        @transactional = false unless defined? @transactional
+        @transactional
       end
 
       # Main point of entry for services, will raise in case of errors

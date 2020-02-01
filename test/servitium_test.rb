@@ -12,6 +12,8 @@ class TestService < Servitium::Service
     context.result = context.servitium.reverse
 
     context.fail!('Pizza time!') if ctx.result == 'azzip'
+
+    context.fail!(:servitium, :invalid, message: 'Mouse!') if ctx.result == 'esuom'
   end
 end
 
@@ -29,10 +31,18 @@ class ServitiumTest < Minitest::Test
 
   def test_sets_error_when_failing_context
     context = TestService.perform(servitium: 'pizza')
-    assert context.failure?
-    assert 'Pizza time!', context.errors.messages[:base]
 
+    assert context.failure?
+    assert_equal ['Pizza time!'], context.errors.messages[:base]
     assert_equal 'azzip', context.result
+  end
+
+  def test_sets_error_when_failing_context_with_attr
+    context = TestService.perform(servitium: 'mouse')
+
+    assert context.failure?
+    assert_equal ['Mouse!'], context.errors.messages[:servitium]
+    assert_equal 'esuom', context.result
   end
 
   def test_sets_errors_when_failing_context_should_raise

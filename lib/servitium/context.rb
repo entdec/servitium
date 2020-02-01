@@ -23,23 +23,26 @@ module Servitium
       !success?
     end
 
-    alias fail? failure?
+    alias_method :fail?, :failure?
+    alias_method :failed?, :failure?
 
-    def fail!(errors)
+    def fail!(attr, message = :invalid, options = {})
       @success = false
-      merge_errors!(errors)
+      merge_errors!(attr, message, options)
       raise ContextFailure, self
     end
 
     private
 
-    def merge_errors!(errors)
-      return unless errors
+    def merge_errors!(attr, message = :invalid, options = {})
+      return unless attr
 
-      if errors.is_a? String
-        self.errors.add(:base, errors)
-      else
-        self.errors.merge!(errors)
+      if attr.is_a? String
+        self.errors.add(:base, attr)
+      elsif attr.is_a? ActiveModel::Errors
+        self.errors.merge!(attr)
+      elsif attr.is_a? Symbol
+        self.errors.add(attr, message, options)
       end
     end
   end
