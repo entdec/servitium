@@ -39,8 +39,8 @@ module Servitium
     def exec
       run_callbacks :perform do
         perform
-      rescue Servitium::ContextFailure
-        raise_if_needed
+      rescue Servitium::ContextFailure => e
+        raise_if_needed(e)
       end
       raise_if_needed
       context
@@ -50,12 +50,16 @@ module Servitium
       @raise_on_error
     end
 
-    def raise_if_needed
+    def raise_if_needed(e = nil)
       return unless raise_on_error?
 
-      errors = context.errors.full_messages.join(', ')
-      log :error, "raising: #{errors}"
-      raise StandardError, errors
+      if e
+        raise e
+      elsif context.errors.present?
+        errors = context.errors.full_messages.join(', ')
+        log :error, "raising: #{errors}"
+        raise StandardError, errors
+      end
     end
 
     def log(level, message)
@@ -88,6 +92,17 @@ module Servitium
           inst.context.instance_variable_set(:@called, true)
         end
         inst.context
+      end
+
+      # Callbacks
+      def before_perform(*filters, &block)
+        set_callback(:perform, :before, *filters, &block)
+      end
+      def around_perform(*filters, &block)
+        set_callback(:perform, :around, *filters, &block)
+      end
+      def after_perform(*filters, &block)
+        set_callback(:perform, :after, *filters, &block)
       end
     end
   end

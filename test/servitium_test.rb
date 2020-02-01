@@ -30,6 +30,45 @@ class TestValidationService < Servitium::Service
   end
 end
 
+class TestCallbacksContext < Servitium::Context
+  attribute :servitium
+  attribute :result
+
+  before_validation do
+    self.result = 'bv'
+  end
+
+  after_validation do
+    self.result += 'av'
+  end
+end
+
+class TestCallbacksService < Servitium::Service
+
+  before_perform do
+    context.result += 'bp'
+  end
+
+
+  after_perform do
+    context.result += 'ap'
+  end
+
+  around_perform :op
+
+  def perform
+  end
+
+  private
+
+  def op
+    context.result += 'op'
+    yield
+    context.result += 'op'
+  end
+end
+
+
 class ServitiumTest < Minitest::Test
   def test_that_it_has_a_version_number
     refute_nil ::Servitium::VERSION
@@ -73,5 +112,10 @@ class ServitiumTest < Minitest::Test
     assert_raises ActiveModel::ValidationError do
       TestValidationService.perform!(servitium: 'mouse')
     end
+  end
+
+  def test_callbacks
+    context = TestCallbacksService.perform!
+    assert_equal 'bvavbpopopap', context.result
   end
 end
