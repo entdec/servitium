@@ -2,21 +2,22 @@
 
 module Servitium
   class Context
-    include ActiveSupport::Callbacks
     include ActiveModel::Model
     include ActiveModel::Attributes
     include ActiveModel::Validations
+    include ActiveModel::Validations::Callbacks
 
     attr_reader :errors
 
     def initialize(*args)
       @success = true
+      @called = false
       @errors = ActiveModel::Errors.new(self)
       super(*args)
     end
 
     def success?
-      @success
+      @called && @success
     end
 
     def failure?
