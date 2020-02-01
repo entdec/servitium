@@ -37,7 +37,7 @@ module Servitium
       return unless errors
 
       if errors.is_a? String
-        self.errors.add(:context, errors)
+        self.errors.add(:base, errors)
       else
         self.errors.merge!(errors)
       end

@@ -14,7 +14,9 @@ module Servitium
     def initialize(*args)
       @raise_on_error = false
       @context = context_class.new(*args)
-      log(:warn, "Don't instantiate #{self.class.name} yourself, call perform or perform!") unless caller.first.include? 'application_service.rb'
+      unless caller.first.include? 'application_service.rb'
+        log(:warn, "Don't instantiate #{self.class.name} yourself, call perform or perform!")
+      end
       super()
     end
 
@@ -40,7 +42,7 @@ module Servitium
     def exec
       run_callbacks :perform do
         perform
-      rescue Servitium::ContextFailure => e
+      rescue Servitium::ContextFailure
         raise_if_needed
       end
       raise_if_needed
@@ -60,7 +62,9 @@ module Servitium
     end
 
     def log(level, message)
-      Rails.logger.send level, "#{self.class.name}: #{message}" if defined? Rails.logger
+      return unless defined? Rails.logger
+
+      Rails.logger.send level, "#{self.class.name}: #{message}"
     end
 
     class << self
