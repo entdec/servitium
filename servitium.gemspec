@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Tom de Grunt']
   spec.email         = ['tom@degrunt.nl']
 
-  spec.summary       = 'Services'
-  spec.description   = 'Simple solution to the command pattern'
+  spec.summary       = 'Service objects'
+  spec.description   = 'An implementation of the command pattern for Ruby'
   spec.homepage      = 'https://entropydecelerator.com/components/servitium'
   spec.license       = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
