@@ -17,6 +17,19 @@ class TestService < Servitium::Service
   end
 end
 
+class TestValidationContext < Servitium::Context
+  attribute :servitium
+  attribute :result
+
+  validates :servitium, absence: true
+end
+
+class TestValidationService < Servitium::Service
+  def perform
+    context.result = context.servitium.reverse
+  end
+end
+
 class ServitiumTest < Minitest::Test
   def test_that_it_has_a_version_number
     refute_nil ::Servitium::VERSION
@@ -48,6 +61,17 @@ class ServitiumTest < Minitest::Test
   def test_sets_errors_when_failing_context_should_raise
     assert_raises StandardError do
       TestService.perform!(servitium: 'pizza')
+    end
+  end
+
+  def test_validation_fails_causes_failure
+    context = TestValidationService.perform(servitium: 'mouse')
+    assert context.failure?
+  end
+
+  def test_validation_fails_causes_exception
+    assert_raises ActiveModel::ValidationError do
+      TestValidationService.perform!(servitium: 'mouse')
     end
   end
 end

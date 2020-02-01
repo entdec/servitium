@@ -14,9 +14,6 @@ module Servitium
     def initialize(*args)
       @raise_on_error = false
       @context = context_class.new(*args)
-      unless caller.first.include? 'application_service.rb'
-        log(:warn, "Don't instantiate #{self.class.name} yourself, call perform or perform!")
-      end
       super()
     end
 
@@ -78,6 +75,7 @@ module Servitium
       def perform!(*args)
         inst = new(*args)
         inst.context.validate!
+        inst.context.instance_variable_set(:@called, true)
         inst.send(:call!)
         inst.context
       end
@@ -85,7 +83,10 @@ module Servitium
       # Main point of entry for services
       def perform(*args)
         inst = new(*args)
-        inst.send(:call) if inst.context.valid?
+        if inst.context.valid?
+          inst.send(:call)
+          inst.context.instance_variable_set(:@called, true)
+        end
         inst.context
       end
     end
