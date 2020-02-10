@@ -1,0 +1,9 @@
+Description:
+    Generates a service and context
+
+Example:
+    rails generate service Thing
+
+    This will create:
+        app/services/your_service.rb
+        app/services/your_context.rb

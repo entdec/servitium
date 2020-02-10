@@ -9,6 +9,8 @@ module Servitium
 
     attr_reader :errors
 
+    # alias_metod
+
     def initialize(*args)
       @success = true
       @called = false

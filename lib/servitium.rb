@@ -11,3 +11,5 @@ module Servitium
   class Error < StandardError; end
   class ContextFailure < Servitium::Error; end
 end
+
+require 'servitium/rails' if defined?(::Rails)
