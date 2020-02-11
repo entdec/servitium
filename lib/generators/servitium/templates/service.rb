@@ -2,6 +2,6 @@
 
 class <%= name %>Service < ApplicationService
   def perform
-    # Your code
+    context.some.reverse!
   end
 end
