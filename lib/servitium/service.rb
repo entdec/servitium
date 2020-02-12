@@ -5,11 +5,13 @@ module Servitium
     include ActiveSupport::Callbacks
     attr_reader :context
 
-    alias_method :ctx, :context
+    alias ctx context
 
     define_callbacks :perform
     private_class_method :new
     attr_reader :raise_on_error
+
+    delegate :transactional, to: :class
 
     def initialize(*args)
       @raise_on_error = false
@@ -20,7 +22,7 @@ module Servitium
     private
 
     def call
-      if self.class.transactional && defined? ActiveRecord::Base
+      if transactional && defined?(ActiveRecord::Base)
         ActiveRecord::Base.transaction { exec }
       else
         exec
@@ -71,7 +73,7 @@ module Servitium
     class << self
       def transactional(value = nil)
         @transactional = value unless value.nil?
-        @transactional = false unless defined? @transactional
+        @transactional = false if @transactional.nil?
         @transactional
       end
 
@@ -98,9 +100,11 @@ module Servitium
       def before_perform(*filters, &block)
         set_callback(:perform, :before, *filters, &block)
       end
+
       def around_perform(*filters, &block)
         set_callback(:perform, :around, *filters, &block)
       end
+
       def after_perform(*filters, &block)
         set_callback(:perform, :after, *filters, &block)
       end

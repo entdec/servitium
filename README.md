@@ -8,16 +8,22 @@ An implementation of the command pattern for Ruby
 - Callbacks
 
   Context:
-  
+
   - before_validation
   - after_validation
-  
+
   Services:
-  
+
   - before_perform
   - around_perform
   - after_perform
-   
+
+- Transations
+  By default transactions are disabled, but you can include the following in your ApplicationService
+  ```ruby
+  transactional true
+  ```
+
 ## Installation
 
 Add this line to your application's Gemfile:

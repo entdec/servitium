@@ -10,10 +10,4 @@ class <%= name %>Context < ApplicationContext
 
   after_validation do
   end
-
-  before_perform do
-  end
-
-  after_perform do
-  end
 end
