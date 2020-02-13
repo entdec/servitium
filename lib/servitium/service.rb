@@ -1,8 +1,31 @@
 # frozen_string_literal: true
 
 module Servitium
+  module TransactionalMixin
+    class << self
+      def included(base)
+        base.extend ClassMethods
+      end
+    end
+
+    module ClassMethods
+      def transactional(value = nil)
+        @transactional = value if value
+        if @transactional.nil?
+          @transactional = if superclass < Servitium::Service
+                             superclass.transactional
+                           else
+                             false
+                           end
+        end
+        @transactional
+      end
+    end
+  end
+
   class Service
     include ActiveSupport::Callbacks
+    include TransactionalMixin
     attr_reader :context
 
     alias ctx context
@@ -71,12 +94,6 @@ module Servitium
     end
 
     class << self
-      def transactional(value = nil)
-        @transactional = value unless value.nil?
-        @transactional = false if @transactional.nil?
-        @transactional
-      end
-
       # Main point of entry for services, will raise in case of errors
       def perform!(*args)
         inst = new(*args)
