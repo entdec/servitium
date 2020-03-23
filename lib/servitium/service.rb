@@ -11,6 +11,7 @@ module Servitium
     module ClassMethods
       def transactional(value = nil)
         @transactional = value if value
+        @transactional = nil unless defined?(@transactional)
         if @transactional.nil?
           @transactional = if superclass < Servitium::Service
                              superclass.transactional
@@ -46,7 +47,12 @@ module Servitium
 
     def call
       if transactional && defined?(ActiveRecord::Base)
-        ActiveRecord::Base.transaction { exec }
+        ActiveRecord::Base.transaction do
+          context = exec
+          raise ActiveRecord::Rollback if context.failed?
+        end
+
+        context
       else
         exec
       end
