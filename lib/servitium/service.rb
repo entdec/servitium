@@ -48,7 +48,7 @@ module Servitium
     def call
       if transactional && defined?(ActiveRecord::Base)
         ActiveRecord::Base.transaction do
-          context = exec
+          exec
           raise ActiveRecord::Rollback if context.failed?
         end
 
@@ -113,8 +113,8 @@ module Servitium
       def perform(*args)
         inst = new(*args)
         if inst.context.valid?
-          inst.send(:call)
           inst.context.instance_variable_set(:@called, true)
+          inst.send(:call)
         end
         inst.context
       end
