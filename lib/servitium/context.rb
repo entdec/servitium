@@ -15,6 +15,9 @@ module Servitium
       @success = true
       @called = false
       @errors = ActiveModel::Errors.new(self)
+
+      create_subcontexts(args.first) if args.first.is_a?(Hash)
+
       super(*args)
     end
 
@@ -36,6 +39,23 @@ module Servitium
     end
 
     private
+
+    def create_subcontexts(context_values)
+      context_values.each do |key, value|
+        klass = "#{self.class.name}::#{key.to_s.camelize}".safe_constantize
+        klass ||= "#{self.class.name}::#{key.to_s.singularize.camelize}".safe_constantize
+
+        if klass
+          if value.is_a?(Array)
+            value = value.map! { |v| klass.new(v) }
+          else
+            value = klass.new(value)
+          end
+
+          context_values[key] = value
+        end
+      end
+    end
 
     def merge_errors!(attr, message = :invalid, options = {})
       return unless attr
