@@ -7,6 +7,8 @@ module Servitium
     include ActiveModel::Validations
     include ActiveModel::Validations::Callbacks
 
+    validate :validate_subcontexts
+
     attr_reader :errors
 
     # alias_metod
@@ -16,7 +18,7 @@ module Servitium
       @called = false
       @errors = ActiveModel::Errors.new(self)
 
-      create_subcontexts(args.first) if args.first.is_a?(Hash)
+      @subcontexts = create_subcontexts(args.first) if args.first.is_a?(Hash)
 
       super(*args)
     end
@@ -41,6 +43,8 @@ module Servitium
     private
 
     def create_subcontexts(context_values)
+      subcontexts = {}
+
       context_values.each do |key, value|
         klass = "#{self.class.name}::#{key.to_s.camelize}".safe_constantize
         klass ||= "#{self.class.name}::#{key.to_s.singularize.camelize}".safe_constantize
@@ -52,8 +56,17 @@ module Servitium
             value = klass.new(value)
           end
 
+          subcontexts[key]    = value
           context_values[key] = value
         end
+      end
+
+      subcontexts
+    end
+
+    def validate_subcontexts
+      @subcontexts.each do |key, value|
+        errors.add(key, 'invalid') if [*value].find_all { |v| v.invalid? }.size > 0
       end
     end
 
