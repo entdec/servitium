@@ -2,10 +2,7 @@
 
 module Servitium
   class Context
-    include ActiveModel::Model
-    include ActiveModel::Attributes
-    include ActiveModel::Validations
-    include ActiveModel::Validations::Callbacks
+    include Servitium::ContextModel
 
     validate :validate_subcontexts
 
@@ -18,7 +15,7 @@ module Servitium
       @called = false
       @errors = ActiveModel::Errors.new(self)
 
-      @subcontexts = create_subcontexts(args.first) if args.first.is_a?(Hash)
+      @subcontexts = create_subcontexts(args.first)
 
       super(*args)
     end
@@ -44,6 +41,7 @@ module Servitium
 
     def create_subcontexts(context_values)
       subcontexts = {}
+      return subcontexts unless context_values.is_a?(Hash)
 
       context_values.each do |key, value|
         klass = "#{self.class.name}::#{key.to_s.camelize}".safe_constantize

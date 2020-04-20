@@ -5,6 +5,17 @@ require 'test_helper'
 class TestContext < Servitium::Context
   attribute :servitium
   attribute :result
+  attribute :my_subcontext
+  attribute :my_subcontexts
+  attribute :other_hash
+end
+
+class TestContext::MySubcontext
+  include Servitium::ContextModel
+
+  attribute :name
+
+  validates :name, presence: true
 end
 
 class TestService < Servitium::Service
@@ -18,10 +29,14 @@ class TestService < Servitium::Service
 end
 
 class TestValidationContext < Servitium::Context
-  attribute :servitium
+  attribute :servitium, default: ''
   attribute :result
+  attribute :my_subcontexts
 
   validates :servitium, absence: true
+end
+
+class TestValidationContext::MySubcontext < TestContext::MySubcontext
 end
 
 class TestValidationService < Servitium::Service
@@ -81,6 +96,22 @@ class ServitiumTest < Minitest::Test
     assert_equal 'olleh', context.result
   end
 
+  def test_sets_subcontexts
+    context = TestService.perform(servitium: 'hello', my_subcontext: { name: 'Tom' }, my_subcontexts: [ { name: 'Ivo' }, { name: 'Andre' } ], other_hash: { name: 'Sander' })
+    assert context.success?
+
+    assert_instance_of TestContext::MySubcontext, context.my_subcontext
+    assert_equal 'Tom', context.my_subcontext.name
+
+    assert_equal 2, context.my_subcontexts.size
+    assert_instance_of TestContext::MySubcontext, context.my_subcontexts.first
+    assert_equal 'Ivo', context.my_subcontexts.first.name
+    assert_instance_of TestContext::MySubcontext, context.my_subcontexts.last
+    assert_equal 'Andre', context.my_subcontexts.last.name
+
+    assert_instance_of Hash, context.other_hash
+  end
+
   def test_sets_error_when_failing_context
     context = TestService.perform(servitium: 'pizza')
 
@@ -106,6 +137,15 @@ class ServitiumTest < Minitest::Test
   def test_validation_fails_causes_failure
     context = TestValidationService.perform(servitium: 'mouse')
     assert context.failure?
+  end
+
+  def test_validation_validates_subcontexts
+    context = TestValidationService.perform(my_subcontexts: [ { name: 'Tom' }, {} ])
+    assert context.failure?
+
+    refute context.valid?
+    assert_equal ['invalid'], context.errors[:my_subcontexts]
+    assert_equal ['can\'t be blank'], context.my_subcontexts.last.errors[:name]
   end
 
   def test_validation_fails_causes_exception
