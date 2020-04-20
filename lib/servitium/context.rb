@@ -64,7 +64,7 @@ module Servitium
 
     def validate_subcontexts
       @subcontexts.each do |key, value|
-        errors.add(key, 'invalid') if [*value].find_all { |v| v.invalid? }.size > 0
+        errors.add(key, 'invalid') if [*value].find_all { |v| v.respond_to?(:invalid?) && v.invalid? }.size > 0
       end
     end
 
