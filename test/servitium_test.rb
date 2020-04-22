@@ -14,8 +14,13 @@ class TestContext::MySubcontext
   include Servitium::ContextModel
 
   attribute :name
+  attribute :withins
+end
 
-  validates :name, presence: true
+class TestContext::MySubcontext::Within
+  include Servitium::ContextModel
+
+  attribute :colour
 end
 
 class TestService < Servitium::Service
@@ -37,6 +42,11 @@ class TestValidationContext < Servitium::Context
 end
 
 class TestValidationContext::MySubcontext < TestContext::MySubcontext
+  validates :name, presence: true
+end
+
+class TestValidationContext::MySubcontext::Within < TestContext::MySubcontext::Within
+  validates :colour, inclusion: { in: %w[Blue Orange] }
 end
 
 class TestValidationService < Servitium::Service
@@ -97,17 +107,31 @@ class ServitiumTest < Minitest::Test
   end
 
   def test_sets_subcontexts
-    context = TestService.perform(servitium: 'hello', my_subcontext: { name: 'Tom' }, my_subcontexts: [ { name: 'Ivo' }, { name: 'Andre' } ], other_hash: { name: 'Sander' })
+    context = TestService.perform(servitium: 'hello', my_subcontext: { name: 'Tom' }, my_subcontexts: [ { name: 'Ivo' }, { name: 'Andre', withins: [ { colour: 'Orange' }, { colour: 'Cyan' } ] } ], other_hash: { name: 'Sander', withins: [ { colour: 'Blue' }, { colour: 'Green' } ] })
     assert context.success?
 
     assert_instance_of TestContext::MySubcontext, context.my_subcontext
     assert_equal 'Tom', context.my_subcontext.name
+    assert_nil context.my_subcontext.withins
 
     assert_equal 2, context.my_subcontexts.size
-    assert_instance_of TestContext::MySubcontext, context.my_subcontexts.first
-    assert_equal 'Ivo', context.my_subcontexts.first.name
-    assert_instance_of TestContext::MySubcontext, context.my_subcontexts.last
-    assert_equal 'Andre', context.my_subcontexts.last.name
+
+    subcontext = context.my_subcontexts.first
+    assert_instance_of TestContext::MySubcontext, subcontext
+    assert_equal 'Ivo', subcontext.name
+    assert_nil subcontext.withins
+
+    subcontext = context.my_subcontexts.last
+    assert_instance_of TestContext::MySubcontext, subcontext
+    assert_equal 'Andre', subcontext.name
+    assert_equal 2, subcontext.withins.size
+
+    within = subcontext.withins.first
+    assert_instance_of TestContext::MySubcontext::Within, within
+    assert_equal 'Orange', within.colour
+    within = subcontext.withins.last
+    assert_instance_of TestContext::MySubcontext::Within, within
+    assert_equal 'Cyan', within.colour
 
     assert_instance_of Hash, context.other_hash
   end
@@ -140,12 +164,28 @@ class ServitiumTest < Minitest::Test
   end
 
   def test_validation_validates_subcontexts
-    context = TestValidationService.perform(my_subcontexts: [ { name: 'Tom' }, {} ])
+    context = TestValidationService.perform(my_subcontexts: [ { name: 'Tom' }, {}, { name: 'Andre', withins: [ { colour: 'Purple' }, { colour: 'Blue' } ] } ])
     assert context.failure?
 
     refute context.valid?
     assert_equal ['invalid'], context.errors[:my_subcontexts]
-    assert_equal ['can\'t be blank'], context.my_subcontexts.last.errors[:name]
+
+    subcontext = context.my_subcontexts.first
+    assert_empty subcontext.errors
+
+    subcontext = context.my_subcontexts[1]
+    assert_equal ['can\'t be blank'], subcontext.errors[:name]
+    assert_empty subcontext.errors[:withins]
+
+    subcontext = context.my_subcontexts.last
+    assert_empty subcontext.errors[:name]
+    assert_equal ['invalid'], subcontext.errors[:withins]
+
+    within = subcontext.withins.first
+    assert_equal ['is not included in the list'], within.errors[:colour]
+
+    within = subcontext.withins.last
+    assert_empty within.errors
   end
 
   def test_validation_fails_causes_exception
