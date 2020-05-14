@@ -64,7 +64,7 @@ module Servitium
     end
 
     def context_class
-      self.class.name.gsub('Service', 'Context').safe_constantize || Servitium::Context
+      self.class.context_class || Servitium::Context
     end
 
     def exec
@@ -130,6 +130,19 @@ module Servitium
 
       def after_perform(*filters, &block)
         set_callback(:perform, :after, *filters, &block)
+      end
+
+      def context_class
+        context_class_name.safe_constantize
+      end
+
+      def context_class_name
+        name.gsub('Service', 'Context')
+      end
+
+      def context(&block)
+        eval "class #{context_class_name} < Context; end" unless context_class
+        context_class.instance_eval(&block)
       end
     end
   end
