@@ -140,9 +140,15 @@ module Servitium
         name.gsub('Service', 'Context')
       end
 
+      def context_class!
+        return context_class if context_class
+
+        Object.const_set(context_class_name, Class.new(Servitium::Context))
+        context_class
+      end
+
       def context(&block)
-        eval "class #{context_class_name} < Context; end" unless context_class
-        context_class.instance_eval(&block)
+        context_class!.instance_eval(&block)
       end
     end
   end

@@ -69,11 +69,9 @@ class TestCallbacksContext < Servitium::Context
 end
 
 class TestCallbacksService < Servitium::Service
-
   before_perform do
     context.result += 'bp'
   end
-
 
   after_perform do
     context.result += 'ap'
@@ -92,7 +90,6 @@ class TestCallbacksService < Servitium::Service
     context.result += 'op'
   end
 end
-
 
 class ServitiumTest < Minitest::Test
   def test_that_it_has_a_version_number
