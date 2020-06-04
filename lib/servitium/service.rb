@@ -27,6 +27,8 @@ module Servitium
   class Service
     include ActiveSupport::Callbacks
     include TransactionalMixin
+    include Servitium::I18n
+
     attr_reader :context
 
     alias ctx context

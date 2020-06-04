@@ -2,6 +2,7 @@
 
 module Servitium
   class Context
+    include Servitium::I18n
     include Servitium::ContextModel
 
     attr_reader :errors

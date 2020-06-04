@@ -3,6 +3,7 @@
 require 'active_model'
 require 'active_support'
 
+require 'servitium/i18n'
 require 'servitium/context_model'
 require 'servitium/context'
 require 'servitium/service'
