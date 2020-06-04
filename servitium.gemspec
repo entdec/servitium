@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'An implementation of the command pattern for Ruby'
   spec.homepage      = 'https://entropydecelerator.com/components/servitium'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.3.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.6.5')
 
   spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
 
@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activemodel', '> 5.1'
   spec.add_dependency 'activerecord', '> 5.1'
   spec.add_dependency 'activesupport', '> 5.1'
+  spec.add_dependency 'i18n', '>= 0.7'
 
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'minitest', '~> 5.11'
