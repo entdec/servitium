@@ -24,9 +24,33 @@ module Servitium
     end
   end
 
+  module CaptureExceptionsMixin
+    class << self
+      def included(base)
+        base.extend ClassMethods
+      end
+    end
+
+    module ClassMethods
+      def capture_exceptions(value = nil)
+        @capture_exceptions = value if value
+        @capture_exceptions = nil unless defined?(@capture_exceptions)
+        if @capture_exceptions.nil?
+          @capture_exceptions = if superclass < Servitium::Service
+                             superclass.capture_exceptions
+                           else
+                             false
+                           end
+        end
+        @capture_exceptions
+      end
+    end
+  end
+
   class Service
     include ActiveSupport::Callbacks
     include TransactionalMixin
+    include CaptureExceptionsMixin
     include Servitium::I18n
 
     attr_reader :context
@@ -38,10 +62,12 @@ module Servitium
     attr_reader :raise_on_error
 
     delegate :transactional, to: :class
+    delegate :capture_exceptions, to: :class
 
     def initialize(*args)
       @raise_on_error = false
       @context = context_class.new(*args)
+      @command = args.first.is_a?(Symbol) ? args.shift : :perform
       super()
     end
 
@@ -71,9 +97,13 @@ module Servitium
 
     def exec
       run_callbacks :perform do
-        perform
+        send(@command)
       rescue Servitium::ContextFailure => e
         raise_if_needed(e)
+      rescue => e
+        # If capture exceptions is true, eat the exception and set the context errors.
+        raise unless capture_exceptions
+        context.errors.add(:base, e.message)
       end
       raise_if_needed
       context
@@ -145,7 +175,12 @@ module Servitium
       def context_class!
         return context_class if context_class
 
-        Object.const_set(context_class_name, Class.new(Servitium::Context))
+        context_class_parts = context_class_name.split('::')
+        context_class_name_part = context_class_parts.pop
+        context_module_name = context_class_parts.join('::')
+        context_module = context_module_name.present? ? context_module_name.constantize : Object
+
+        context_module.const_set(context_class_name_part, Class.new(Servitium::Context))
         context_class
       end
 
