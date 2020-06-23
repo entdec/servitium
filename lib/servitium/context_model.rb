@@ -23,7 +23,9 @@ module Servitium
 
       def validate_subcontexts
         @subcontexts.each do |key, value|
-          errors.add(key, 'invalid') if [*value].find_all { |v| v.respond_to?(:invalid?) && v.invalid? }.size > 0
+          unless [*value].find_all { |v| v.respond_to?(:invalid?) && v.invalid? }.empty?
+            errors.add(key, 'invalid')
+          end
         end
       end
 
@@ -35,16 +37,16 @@ module Servitium
           klass = "#{self.class.name}::#{key.to_s.camelize}".safe_constantize
           klass ||= "#{self.class.name}::#{key.to_s.singularize.camelize}".safe_constantize
 
-          if klass
-            if value.is_a?(Array)
-              value = value.map! { |v| klass.new(v) }
-            else
-              value = klass.new(value)
-            end
+          next unless klass
 
-            subcontexts[key]    = value
-            context_values[key] = value
-          end
+          value = if value.is_a?(Array)
+                    value.map! { |v| klass.new(v) }
+                  else
+                    klass.new(value)
+                  end
+
+          subcontexts[key]    = value
+          context_values[key] = value
         end
 
         subcontexts
@@ -52,4 +54,3 @@ module Servitium
     end
   end
 end
-
