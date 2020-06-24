@@ -5,10 +5,7 @@ module Servitium
     extend ActiveSupport::Concern
 
     included do
-      include ActiveModel::Model
-      include ActiveModel::Attributes
-      include ActiveModel::Validations
-      include ActiveModel::Validations::Callbacks
+      include ActiveAttr::Model
 
       validate :validate_subcontexts
 
@@ -23,9 +20,7 @@ module Servitium
 
       def validate_subcontexts
         @subcontexts.each do |key, value|
-          unless [*value].find_all { |v| v.respond_to?(:invalid?) && v.invalid? }.empty?
-            errors.add(key, 'invalid')
-          end
+          errors.add(key, 'invalid') unless [*value].find_all { |v| v.respond_to?(:invalid?) && v.invalid? }.empty?
         end
       end
 

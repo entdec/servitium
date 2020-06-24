@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'active_model'
+require 'active_attr'
 require 'active_support'
 
 require 'servitium/i18n'
