@@ -66,8 +66,8 @@ module Servitium
 
     def initialize(*args)
       @raise_on_error = false
-      @context = context_class.new(*args)
       @command = args.first.is_a?(Symbol) ? args.shift : :perform
+      @context = context_class.new(*args)
       super()
     end
 

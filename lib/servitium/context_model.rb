@@ -16,6 +16,12 @@ module Servitium
         super(*args)
       end
 
+      def inspect
+        message = super
+        message += " (success: #{success?}, valid: #{@errors.size.zero?}, errors: #{@errors.full_messages.join(', ')})"
+        message
+      end
+
       private
 
       def validate_subcontexts
