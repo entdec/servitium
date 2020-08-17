@@ -13,6 +13,7 @@ module Servitium
       @success     = true
       @called      = false
       @errors      = ActiveModel::Errors.new(self)
+      args = remap_args(args)
       @subcontexts = create_subcontexts(args.first)
 
       super(*args)

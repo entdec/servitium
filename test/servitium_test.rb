@@ -133,6 +133,36 @@ class ServitiumTest < Minitest::Test
     assert_instance_of Hash, context.other_hash
   end
 
+  def test_sets_subcontexts_attributes
+    context = TestService.perform(servitium: 'hello', my_subcontext_attributes: { name: 'Tom' }, my_subcontexts_attributes: [ { name: 'Ivo' }, { name: 'Andre', withins: [ { colour: 'Orange' }, { colour: 'Cyan' } ] } ], other_hash: { name: 'Sander', withins: [ { colour: 'Blue' }, { colour: 'Green' } ] })
+    assert context.success?
+
+    assert_instance_of TestContext::MySubcontext, context.my_subcontext
+    assert_equal 'Tom', context.my_subcontext.name
+    assert_nil context.my_subcontext.withins
+
+    assert_equal 2, context.my_subcontexts.size
+
+    subcontext = context.my_subcontexts.first
+    assert_instance_of TestContext::MySubcontext, subcontext
+    assert_equal 'Ivo', subcontext.name
+    assert_nil subcontext.withins
+
+    subcontext = context.my_subcontexts.last
+    assert_instance_of TestContext::MySubcontext, subcontext
+    assert_equal 'Andre', subcontext.name
+    assert_equal 2, subcontext.withins.size
+
+    within = subcontext.withins.first
+    assert_instance_of TestContext::MySubcontext::Within, within
+    assert_equal 'Orange', within.colour
+    within = subcontext.withins.last
+    assert_instance_of TestContext::MySubcontext::Within, within
+    assert_equal 'Cyan', within.colour
+
+    assert_instance_of Hash, context.other_hash
+  end
+
   def test_sets_error_when_failing_context
     context = TestService.perform(servitium: 'pizza')
 
