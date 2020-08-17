@@ -9,6 +9,7 @@ module Servitium
 
       validate :validate_subcontexts
 
+
       def initialize(*args)
         @errors = ActiveModel::Errors.new(self)
         args = remap_args(args)
@@ -28,7 +29,7 @@ module Servitium
       def remap_args(args)
         return args if args.empty?
 
-        args[0] = args.first.map do |key, value|
+        args[0] = args.first.to_h.map do |key, value|
           if key.to_s.match?(/_attributes$/)
             try_key = key.to_s.sub(/_attributes$/, '')
             klass = "#{self.class.name}::#{try_key.camelize}".safe_constantize

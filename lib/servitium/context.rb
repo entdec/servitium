@@ -2,11 +2,15 @@
 
 module Servitium
   class Context
+    extend ActiveModel::Callbacks
+
     include Servitium::I18n
     include Servitium::ContextModel
 
-    attr_reader :errors
+    define_model_callbacks :initialize
 
+    attr_reader :errors
+    define_callbacks :perform
     # alias_metod
 
     def initialize(*args)
@@ -16,8 +20,11 @@ module Servitium
       args = remap_args(args)
       @subcontexts = create_subcontexts(args.first)
 
-      super(*args)
+      run_callbacks :initialize do
+        super(*args)
+      end
     end
+
 
     def success?
       @called && @success

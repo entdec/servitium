@@ -184,8 +184,15 @@ module Servitium
         context_class
       end
 
-      def context(&block)
-        context_class!.instance_eval(&block)
+      def context(*args, &block)
+        return initialized_context(*args) unless block_given?
+
+        context_class!.new rescue nil
+        context_class!.class_eval(&block)
+      end
+
+      def initialized_context(*args)
+        context_class.new(*args)
       end
     end
   end

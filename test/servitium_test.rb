@@ -91,9 +91,29 @@ class TestCallbacksService < Servitium::Service
   end
 end
 
+class TestInlineContextService < Servitium::Service
+  context do
+    attribute :test1
+    attribute :test2
+
+    after_initialize :init_vars
+
+    def init_vars
+      self.test2 ||= test1 * 2
+    end
+  end
+end
+
 class ServitiumTest < Minitest::Test
   def test_that_it_has_a_version_number
     refute_nil ::Servitium::VERSION
+  end
+
+  def test_inline_context_init
+    assert_equal TestInlineContextContext, TestInlineContextService.context_class
+    ctx = TestInlineContextService.context(test1: 1)
+    assert_equal 1, ctx.test1
+    assert_equal 2, ctx.test2
   end
 
   def test_sets_context
