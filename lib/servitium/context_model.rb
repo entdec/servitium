@@ -8,7 +8,7 @@ module Servitium
       include ActiveAttr::Model
 
       validate :validate_subcontexts
-
+      attr_accessor :supercontext
 
       def initialize(*args)
         @errors = ActiveModel::Errors.new(self)
@@ -65,6 +65,7 @@ module Servitium
                     klass.new(value)
                   end
 
+          [*value].each { |v| v.supercontext = self }
           subcontexts[key]    = value
           context_values[key] = value
         end
