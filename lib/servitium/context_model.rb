@@ -6,6 +6,7 @@ module Servitium
 
     included do
       include ActiveAttr::Model
+      include Servitium::I18n
 
       validate :validate_subcontexts
       attr_accessor :supercontext

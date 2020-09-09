@@ -4,7 +4,6 @@ module Servitium
   class Context
     extend ActiveModel::Callbacks
 
-    include Servitium::I18n
     include Servitium::ContextModel
 
     define_model_callbacks :initialize
