@@ -63,6 +63,7 @@ module Servitium
 
     delegate :transactional, to: :class
     delegate :capture_exceptions, to: :class
+    delegate :model_name, to: :context
 
     def initialize(*args)
       @raise_on_error = false

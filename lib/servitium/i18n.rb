@@ -2,9 +2,18 @@
 
 module Servitium
   module I18n
-    def t(key, options = {})
-      options = { scope: "services.#{self.class.to_s.underscore.gsub('/', '.')}", default: ::I18n.t(key) }.merge(options)
-      ::I18n.t(key, options)
+    def t(key, passed_options = {})
+      unless @service_scope
+        parts = (self.is_a?(Class) ? self : self.class).to_s.underscore.gsub('/', '.').split('.')
+        parts[-1] = "#{parts.last.gsub('_service', '').pluralize}.service" if parts.last.ends_with?('_service')
+        parts[-1] = "#{parts.last.gsub('_context', '').pluralize}.context" if parts.last.ends_with?('_context')
+        @service_scope = parts.compact.join('.')
+      end
+
+      options = { scope: @service_scope }
+      options[:default] = ::I18n.t(key) unless key.starts_with?('.')
+
+      ::I18n.t(key, options.merge(passed_options))
     end
   end
 end

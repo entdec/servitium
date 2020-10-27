@@ -3,7 +3,6 @@
 module Servitium
   module ContextModel
     extend ActiveSupport::Concern
-
     included do
       include ActiveAttr::Model
       include Servitium::I18n
@@ -23,6 +22,10 @@ module Servitium
         message = super
         message += " (success: #{success?}, valid: #{@errors.size.zero?}, errors: #{@errors.full_messages.join(', ')})"
         message
+      end
+
+      def model_name
+        @model_name ||= ActiveModel::Name.new(self.class, nil, self.class.name.gsub('Context', ''))
       end
 
       private

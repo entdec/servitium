@@ -24,7 +24,6 @@ module Servitium
       end
     end
 
-
     def success?
       @called && @success
     end
@@ -48,11 +47,19 @@ module Servitium
       return unless attr
 
       if attr.is_a? String
-        self.errors.add(:base, attr)
+        errors.add(:base, attr)
       elsif attr.is_a? ActiveModel::Errors
-        self.errors.merge!(attr)
+        errors.merge!(attr)
       elsif attr.is_a? Symbol
-        self.errors.add(attr, message, options)
+        errors.add(attr, message, options)
+      end
+    end
+
+    class << self
+      include Servitium::I18n
+
+      def human_attribute_name(attribute, options = {})
+        t(".#{attribute}", default: super)
       end
     end
   end
