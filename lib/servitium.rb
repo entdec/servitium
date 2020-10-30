@@ -5,6 +5,7 @@ require 'active_attr'
 require 'active_support'
 
 require 'servitium/i18n'
+require 'servitium/scoped_attributes'
 require 'servitium/context_model'
 require 'servitium/context'
 require 'servitium/service'

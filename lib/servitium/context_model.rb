@@ -7,6 +7,8 @@ module Servitium
       include ActiveAttr::Model
       include Servitium::I18n
 
+      delegate :input_attributes, :output_attributes, :other_attributes, to: :class
+
       validate :validate_subcontexts
       attr_accessor :supercontext
 
@@ -75,6 +77,28 @@ module Servitium
         end
 
         subcontexts
+      end
+
+      class << self
+        def input(&block)
+          Servitium::ScopedAttributes.new(self, input_attributes, :in).call(block)
+        end
+
+        def output(&block)
+          Servitium::ScopedAttributes.new(self, output_attributes, :out).call(block)
+        end
+
+        def input_attributes
+          @input_attributes ||= []
+        end
+
+        def output_attributes
+          @output_attributes ||= []
+        end
+
+        def other_attributes
+          @other_attributes ||= attributes.keys - (input_attributes + output_attributes)
+        end
       end
     end
   end

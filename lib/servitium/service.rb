@@ -136,18 +136,21 @@ module Servitium
       # Main point of entry for services, will raise in case of errors
       def perform!(*args)
         inst = new(*args)
+        inst.context.validate!(:in)
         inst.context.validate!
         inst.context.instance_variable_set(:@called, true)
         inst.send(:call!)
+        inst.context.validate!(:out) if inst.context.errors.blank?
         inst.context
       end
 
       # Main point of entry for services
       def perform(*args)
         inst = new(*args)
-        if inst.context.valid?
+        if inst.context.valid?(:in) && inst.context.valid?
           inst.context.instance_variable_set(:@called, true)
           inst.send(:call)
+          inst.context.valid?(:out) if inst.context.errors.blank?
         end
         inst.context
       end
