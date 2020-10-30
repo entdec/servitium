@@ -22,9 +22,9 @@ module Servitium
       context.send(:validates, name, options)
     end
 
-    def validate(options = {}, &block)
+    def validate(name, options = {}, &block)
       options[:on] ||= validation_context if validation_context
-      context.send(:validate, options, &block)
+      context.send(:validate, name, options, &block)
     end
 
     def call(block)
