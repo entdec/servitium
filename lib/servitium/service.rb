@@ -78,6 +78,8 @@ module Servitium
       if transactional && defined?(ActiveRecord::Base)
         ActiveRecord::Base.transaction(requires_new: true) do
           exec
+          # This will only rollback teh changes of the service, SILENTLY, however the context will be failed? already.
+          # This is the most close to expected behaviour this can get.
           raise ActiveRecord::Rollback if context.failed?
         end
 
