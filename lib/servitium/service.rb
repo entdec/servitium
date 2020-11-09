@@ -76,7 +76,7 @@ module Servitium
 
     def call
       if transactional && defined?(ActiveRecord::Base)
-        ActiveRecord::Base.transaction do
+        ActiveRecord::Base.transaction(requires_new: true) do
           exec
           raise ActiveRecord::Rollback if context.failed?
         end
