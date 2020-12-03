@@ -14,7 +14,7 @@ module Servitium
 
       def initialize(*args)
         @errors = ActiveModel::Errors.new(self)
-        args = remap_args(args)
+        # args = remap_args(args)
         @subcontexts = create_subcontexts(args.first)
 
         super(*args)
@@ -66,7 +66,9 @@ module Servitium
           next unless klass
 
           value = if value.is_a?(Array)
-                    value.map! { |v| klass.new(v) }
+                    value.map { |v| klass.new(v) }
+                  elsif value.to_a.all? { |a| a.is_a?(Array) && a.first == a.first.try(:to_i).to_s }
+                    value.to_a.map { |_k, v| klass.new(v) }
                   else
                     klass.new(value)
                   end

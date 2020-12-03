@@ -9,6 +9,7 @@ module Servitium
     define_model_callbacks :initialize
 
     attr_reader :errors
+
     define_callbacks :perform
     # alias_metod
 
@@ -32,8 +33,8 @@ module Servitium
       !success?
     end
 
-    alias_method :fail?, :failure?
-    alias_method :failed?, :failure?
+    alias fail? failure?
+    alias failed? failure?
 
     def fail!(attr, message = :invalid, options = {})
       @success = false
