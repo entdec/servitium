@@ -5,3 +5,5 @@ require 'servitium'
 
 require 'minitest/autorun'
 require 'pry'
+
+require 'test_helpers/servitium_helpers'
