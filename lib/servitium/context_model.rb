@@ -82,11 +82,15 @@ module Servitium
       end
 
       class << self
+        attr_reader :inbound_scope_used, :outbound_scope_used
+
         def input(&block)
+          @inbound_scope_used = true
           Servitium::ScopedAttributes.new(self, input_attributes, :in).call(block)
         end
 
         def output(&block)
+          @outbound_scope_used = true
           Servitium::ScopedAttributes.new(self, output_attributes, :out).call(block)
         end
 

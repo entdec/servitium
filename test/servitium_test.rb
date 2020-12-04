@@ -44,8 +44,7 @@ class ServitiumTest < Minitest::Test
   end
 
   def test_callbacks
-    # Less interesting test now, validations are run twice so that breaks this test.
     context = TestCallbacksService.perform!(test1: true)
-    assert_equal 'bvav', context.result
+    assert_equal 'bvavbpopopap', context.result
   end
 end

@@ -37,10 +37,10 @@ module Servitium
         @capture_exceptions = nil unless defined?(@capture_exceptions)
         if @capture_exceptions.nil?
           @capture_exceptions = if superclass < Servitium::Service
-                             superclass.capture_exceptions
-                           else
-                             false
-                           end
+                                  superclass.capture_exceptions
+                                else
+                                  false
+                                end
         end
         @capture_exceptions
       end
@@ -53,13 +53,12 @@ module Servitium
     include CaptureExceptionsMixin
     include Servitium::I18n
 
-    attr_reader :context
+    attr_reader :context, :raise_on_error
 
     alias ctx context
 
     define_callbacks :perform
     private_class_method :new
-    attr_reader :raise_on_error
 
     delegate :transactional, to: :class
     delegate :capture_exceptions, to: :class
@@ -103,9 +102,10 @@ module Servitium
         send(@command)
       rescue Servitium::ContextFailure => e
         raise_if_needed(e)
-      rescue => e
+      rescue StandardError => e
         # If capture exceptions is true, eat the exception and set the context errors.
         raise unless capture_exceptions
+
         context.errors.add(:base, e.message)
       end
       raise_if_needed
@@ -138,11 +138,11 @@ module Servitium
       # Main point of entry for services, will raise in case of errors
       def perform!(*args)
         inst = new(*args)
-        inst.context.validate!(:in)
+        inst.context.validate!(:in) if inst.context.class.inbound_scope_used
         inst.context.validate!
         inst.context.instance_variable_set(:@called, true)
         inst.send(:call!)
-        inst.context.validate!(:out) if inst.context.errors.blank?
+        inst.context.validate!(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
         inst.context
       end
 
@@ -193,7 +193,11 @@ module Servitium
       def context(*args, &block)
         return initialized_context(*args) unless block_given?
 
-        context_class!.new rescue nil
+        begin
+          context_class!.new
+        rescue StandardError
+          nil
+        end
         context_class!.class_eval(&block)
       end
 

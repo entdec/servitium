@@ -33,7 +33,7 @@ class ValidationTest < Minitest::Test
 
   def test_validation_should_only_be_called_once
     FakeValidator.fake_validator_count = 0
-    context = TestInlineSimpleContextService.perform!(test1: 'blah')
+    TestInlineSimpleContextService.perform!(test1: 'blah')
     assert_equal 1, FakeValidator.fake_validator_count
   end
 end
