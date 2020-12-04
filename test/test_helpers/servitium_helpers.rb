@@ -1,16 +1,18 @@
 class TestContext < Servitium::Context
   attribute :servitium
   attribute :result
-  attribute :my_subcontext
-  attribute :my_subcontexts
   attribute :other_hash
+
+  sub_context :my_subcontext
+  sub_context :my_subcontexts
 end
 
 class TestContext::MySubcontext
   include Servitium::ContextModel
 
   attribute :name
-  attribute :withins
+
+  sub_context :withins
 end
 
 class TestContext::MySubcontext::Within
@@ -32,7 +34,7 @@ end
 class TestValidationContext < Servitium::Context
   attribute :servitium, default: ''
   attribute :result
-  attribute :my_subcontexts
+  sub_context :my_subcontexts
 
   validates :servitium, absence: true
 end

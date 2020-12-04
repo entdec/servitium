@@ -149,10 +149,14 @@ module Servitium
       # Main point of entry for services
       def perform(*args)
         inst = new(*args)
-        if inst.context.valid?(:in) && inst.context.valid?
+
+        valid_in = inst.context.valid?
+        valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
+
+        if valid_in
           inst.context.instance_variable_set(:@called, true)
           inst.send(:call)
-          inst.context.valid?(:out) if inst.context.errors.blank?
+          inst.context.valid?(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
         end
         inst.context
       end

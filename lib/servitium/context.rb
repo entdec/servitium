@@ -16,8 +16,7 @@ module Servitium
       @success     = true
       @called      = false
       @errors      = ActiveModel::Errors.new(self)
-      args = remap_args(args)
-      @subcontexts = create_subcontexts(args.first)
+      @subcontexts = {}
 
       run_callbacks :initialize do
         super(*args)

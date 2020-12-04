@@ -78,7 +78,10 @@ class ServitiumTest < Minitest::Test
   end
 
   def test_sets_subcontexts_attributes_nested_attributes
-    context = TestService.perform(servitium: 'hello', my_subcontext_attributes: { name: 'Tom' }, my_subcontexts_attributes: { '0' => { name: 'Ivo' }, '1' => { name: 'Andre', withins: [{ colour: 'Orange' }, { colour: 'Cyan' }] } }, other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
+    context = TestService.perform(servitium: 'hello',
+                                  my_subcontext_attributes: { name: 'Tom' },
+                                  my_subcontexts_attributes: { '0' => { name: 'Ivo' }, '1' => { name: 'Andre', withins_attributes: [{ colour: 'Orange' }, { colour: 'Cyan' }] } },
+                                  other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
     assert context.success?
 
     assert_instance_of TestContext::MySubcontext, context.my_subcontext
