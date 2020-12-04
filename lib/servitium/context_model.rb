@@ -14,7 +14,7 @@ module Servitium
 
       def initialize(*args)
         @errors = ActiveModel::Errors.new(self)
-        # args = remap_args(args)
+        args = remap_args(args)
         @subcontexts = create_subcontexts(args.first)
 
         super(*args)

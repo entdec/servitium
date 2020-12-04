@@ -11,7 +11,6 @@ module Servitium
     attr_reader :errors
 
     define_callbacks :perform
-    # alias_metod
 
     def initialize(*args)
       @success     = true
