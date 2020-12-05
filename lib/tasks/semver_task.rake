@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'yaml'
-require 'active_support/inflector'
-
 desc 'Semantically version and release, use `rake semver PART`, where PART is {major|minor|patch}'
 task :semver do |_task, _args|
   gemspec = Dir.glob(File.expand_path(File.join(__dir__, '../../')) + '/*.gemspec').first
