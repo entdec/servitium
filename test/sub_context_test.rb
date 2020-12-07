@@ -7,6 +7,11 @@ class ServitiumTest < Minitest::Test
     refute_nil ::Servitium::VERSION
   end
 
+  def test_initializes_contexts_correctly
+    context = TestContext.new
+    assert context.my_subcontexts.is_a?(Array)
+  end
+
   def test_sets_subcontexts
     context = TestService.perform(servitium: 'hello', my_subcontext: { name: 'Tom' }, my_subcontexts: [{ name: 'Ivo' }, { name: 'Andre', withins: [{ colour: 'Orange' }, { colour: 'Cyan' }] }], other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
     assert context.success?
@@ -14,7 +19,7 @@ class ServitiumTest < Minitest::Test
     assert_instance_of TestContext::MySubcontext, context.my_subcontext
     assert_equal context, context.my_subcontext.supercontext
     assert_equal 'Tom', context.my_subcontext.name
-    assert_nil context.my_subcontext.withins
+    assert_equal [], context.my_subcontext.withins
 
     assert_equal 2, context.my_subcontexts.size
 
@@ -22,7 +27,7 @@ class ServitiumTest < Minitest::Test
     assert_equal context, subcontext.supercontext
     assert_instance_of TestContext::MySubcontext, subcontext
     assert_equal 'Ivo', subcontext.name
-    assert_nil subcontext.withins
+    assert_equal [], subcontext.withins
 
     subcontext = context.my_subcontexts.last
     assert_equal context, subcontext.supercontext
@@ -49,7 +54,7 @@ class ServitiumTest < Minitest::Test
     assert_instance_of TestContext::MySubcontext, context.my_subcontext
     assert_equal context, context.my_subcontext.supercontext
     assert_equal 'Tom', context.my_subcontext.name
-    assert_nil context.my_subcontext.withins
+    assert_equal [], context.my_subcontext.withins
 
     assert_equal 2, context.my_subcontexts.size
 
@@ -57,7 +62,7 @@ class ServitiumTest < Minitest::Test
     assert_equal context, subcontext.supercontext
     assert_instance_of TestContext::MySubcontext, subcontext
     assert_equal 'Ivo', subcontext.name
-    assert_nil subcontext.withins
+    assert_equal [], subcontext.withins
 
     subcontext = context.my_subcontexts.last
     assert_equal context, subcontext.supercontext
@@ -87,7 +92,7 @@ class ServitiumTest < Minitest::Test
     assert_instance_of TestContext::MySubcontext, context.my_subcontext
     assert_equal context, context.my_subcontext.supercontext
     assert_equal 'Tom', context.my_subcontext.name
-    assert_nil context.my_subcontext.withins
+    assert_equal [], context.my_subcontext.withins
 
     assert_equal 2, context.my_subcontexts.size
 
@@ -95,7 +100,7 @@ class ServitiumTest < Minitest::Test
     assert_equal context, subcontext.supercontext
     assert_instance_of TestContext::MySubcontext, subcontext
     assert_equal 'Ivo', subcontext.name
-    assert_nil subcontext.withins
+    assert_equal [], subcontext.withins
 
     subcontext = context.my_subcontexts.last
     assert_equal context, subcontext.supercontext

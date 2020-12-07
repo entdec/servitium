@@ -86,8 +86,14 @@ module Servitium
         end
       end
 
-      define_method(name.to_s) do
-        instance_variable_get("@#{name}".to_sym)
+      if name.to_s.singularize == name.to_s
+        define_method(name.to_s) do
+          instance_variable_get("@#{name}".to_sym)
+        end
+      else
+        define_method(name.to_s) do
+          instance_variable_get("@#{name}".to_sym) || []
+        end
       end
 
       @attributes[name.to_s] = ActiveAttr::AttributeDefinition.new(name, {})
