@@ -164,10 +164,15 @@ module Servitium
       # Perform this service async
       def perform_later(*args)
         inst = new(*args)
-        inst.context.validate!(:in) if inst.context.class.inbound_scope_used
-        inst.context.validate!
-        inst.context.instance_variable_set(:@called, true)
-        Servitium::ServiceJob.perform_later(name, *args)
+
+        valid_in = inst.context.valid?
+        valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
+
+        if valid_in
+          inst.context.instance_variable_set(:@called, true)
+          Servitium::ServiceJob.perform_later(name, *args)
+        end
+
         inst.context
       end
 
