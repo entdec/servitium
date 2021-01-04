@@ -59,6 +59,7 @@ module Servitium
 
           result
         end
+
         define_method("#{name}=") do |attributes|
           klass = "#{self.class.name}::#{name.to_s.singularize.camelize}".safe_constantize
           result = if attributes.is_a?(Array) && attributes.all? { |a| a.instance_of?(klass) }
