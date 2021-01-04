@@ -37,6 +37,20 @@ module Servitium
         SecureRandom.uuid
       end
 
+      # Convert the context model's attributes into a Hash, including the values of the subcontexts
+      # @return [Hash]
+      def attributes_hash
+        attributes.map do |key, value|
+          if value.is_a?(ContextModel)
+            [key, value.attributes_hash]
+          elsif value.is_a?(Array) && value.first.is_a?(ContextModel)
+            [key, value.map(&:attributes_hash)]
+          else
+            [key, value]
+          end
+        end.to_h
+      end
+
       def _destroy; end
 
       private

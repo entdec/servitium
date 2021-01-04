@@ -36,7 +36,7 @@ class ServitiumTest < ActiveSupport::TestCase
       context = TestService.perform_later(servitium: 'pancakes')
       assert context.success?
 
-      assert_enqueued_with(job: Servitium::ServiceJob, args: ['TestService', {servitium: 'pancakes'}])
+      assert_enqueued_with(job: Servitium::ServiceJob, args: ['TestService', {'servitium' => 'pancakes', 'result' => nil, 'other_hash' => nil, 'my_subcontext' => nil, 'my_subcontexts' => []}])
     end
   end
 
