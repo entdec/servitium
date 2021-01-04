@@ -24,6 +24,9 @@ An implementation of the command pattern for Ruby
   transactional true
   ```
 
+- Asynchronous execution
+  Instead of calling perform you can use perform\_later to execute a service asynchronously, this uses ActiveJob.
+
 ## Installation
 
 Add this line to your application's Gemfile:
