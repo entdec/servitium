@@ -2,7 +2,9 @@
 
 require 'test_helper'
 
-class ServitiumTest < Minitest::Test
+class ServitiumTest < ActiveSupport::TestCase
+  include ActiveJob::TestHelper
+
   def test_that_it_has_a_version_number
     refute_nil ::Servitium::VERSION
   end
@@ -27,6 +29,20 @@ class ServitiumTest < Minitest::Test
     assert context.failure?
     assert_equal ['Pizza time!'], context.errors.messages[:base]
     assert_equal 'azzip', context.result
+  end
+
+  def test_perform_later_enqueues_a_job
+    assert_enqueued_jobs 1, only: Servitium::ServiceJob do
+      context = TestService.perform_later(servitium: 'pancakes')
+      assert context.success?
+    end
+  end
+
+  def test_perform_later_does_not_enqueue_for_invalid_context
+    assert_enqueued_jobs 0 do
+      context = TestValidationService.perform(servitium: 'mouse')
+      assert context.failure?
+    end
   end
 
   def test_sets_error_when_failing_context_with_attr

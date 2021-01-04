@@ -2,7 +2,7 @@
 
 require 'test_helper'
 
-class ValidationTest < Minitest::Test
+class ValidationTest < ActiveSupport::TestCase
   def test_context_input_validation
     ctx = TestInlineContextService.context(test1: 1)
     assert_equal true, ctx.valid?
