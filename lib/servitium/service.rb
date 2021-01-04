@@ -161,6 +161,16 @@ module Servitium
         inst.context
       end
 
+      # Perform this service async
+      def perform_later(*args)
+        inst = new(*args)
+        inst.context.validate!(:in) if inst.context.class.inbound_scope_used
+        inst.context.validate!
+        inst.context.instance_variable_set(:@called, true)
+        Servitium::ServiceJob.perform_later(name, *args)
+        inst.context
+      end
+
       # Callbacks
       def before_perform(*filters, &block)
         set_callback(:perform, :before, *filters, &block)

@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activemodel', '> 5.1'
   spec.add_dependency 'activerecord', '> 5.1'
   spec.add_dependency 'activesupport', '> 5.1'
+  spec.add_dependency 'activejob', '> 5.1'
   spec.add_dependency 'i18n', '>= 0.7'
 
   spec.add_development_dependency 'rake', '~> 12.0'
