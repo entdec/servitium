@@ -89,11 +89,13 @@ module Servitium
 
       if name.to_s.singularize == name.to_s
         define_method(name.to_s) do
-          instance_variable_get("@#{name}".to_sym)
+          instance_variable_get("@#{name}".to_sym) if instance_variable_defined?("@#{name}".to_sym)
         end
       else
         define_method(name.to_s) do
-          instance_variable_get("@#{name}".to_sym) || []
+          value = instance_variable_get("@#{name}".to_sym) if instance_variable_defined?("@#{name}".to_sym)
+          value ||= []
+          value
         end
       end
 
