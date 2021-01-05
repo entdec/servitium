@@ -8,7 +8,7 @@ module Servitium
     include ActiveSupport::Callbacks
     include TransactionalMixin
     include CaptureExceptionsMixin
-    include Servitium::I18n
+    include I18n
 
     attr_reader :context, :raise_on_error
 
