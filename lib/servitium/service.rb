@@ -15,6 +15,8 @@ module Servitium
     alias ctx context
 
     define_callbacks :perform
+    define_callbacks :async_success
+    define_callbacks :async_failure
     private_class_method :new
 
     delegate :transactional, to: :class
@@ -91,6 +93,16 @@ module Servitium
       Rails.logger.send level, "#{self.class.name}: #{message}"
     end
 
+    def async_success
+      run_callbacks :async_success do
+      end
+    end
+
+    def async_failure
+      run_callbacks :async_failure do
+      end
+    end
+
     class << self
       # Main point of entry for services, will raise in case of errors
       def perform!(*args)
@@ -150,6 +162,22 @@ module Servitium
 
       def after_perform(*filters, &block)
         set_callback(:perform, :after, *filters, &block)
+      end
+
+      def around_async_success(*filters, &block)
+        set_callback(:async_success, :around, *filters, &block)
+      end
+
+      def around_async_failure(*filters, &block)
+        set_callback(:async_failure, :around, *filters, &block)
+      end
+
+      def after_async_success(*filters, &block)
+        set_callback(:async_success, :after, *filters, &block)
+      end
+
+      def after_async_failure(*filters, &block)
+        set_callback(:async_failure, :after, *filters, &block)
       end
 
       def context_class
