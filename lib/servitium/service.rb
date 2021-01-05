@@ -105,6 +105,11 @@ module Servitium
 
       # Main point of entry for services
       def perform(*args)
+        call(*args).context
+      end
+
+      # Call the service returning the service instance
+      def call(*args)
         inst = new(*args)
 
         valid_in = inst.context.valid?
@@ -115,7 +120,8 @@ module Servitium
           inst.send(:call)
           inst.context.valid?(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
         end
-        inst.context
+
+        inst
       end
 
       # Perform this service async
