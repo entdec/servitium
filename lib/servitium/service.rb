@@ -1,52 +1,9 @@
 # frozen_string_literal: true
 
+require_relative 'transactional_mixin'
+require_relative 'capture_exceptions_mixin'
+
 module Servitium
-  module TransactionalMixin
-    class << self
-      def included(base)
-        base.extend ClassMethods
-      end
-    end
-
-    module ClassMethods
-      def transactional(value = nil)
-        @transactional = value if value
-        @transactional = nil unless defined?(@transactional)
-        if @transactional.nil?
-          @transactional = if superclass < Servitium::Service
-                             superclass.transactional
-                           else
-                             false
-                           end
-        end
-        @transactional
-      end
-    end
-  end
-
-  module CaptureExceptionsMixin
-    class << self
-      def included(base)
-        base.extend ClassMethods
-      end
-    end
-
-    module ClassMethods
-      def capture_exceptions(value = nil)
-        @capture_exceptions = value if value
-        @capture_exceptions = nil unless defined?(@capture_exceptions)
-        if @capture_exceptions.nil?
-          @capture_exceptions = if superclass < Servitium::Service
-                                  superclass.capture_exceptions
-                                else
-                                  false
-                                end
-        end
-        @capture_exceptions
-      end
-    end
-  end
-
   class Service
     include ActiveSupport::Callbacks
     include TransactionalMixin
