@@ -196,8 +196,20 @@ module Servitium
         context_module_name = context_class_parts.join('::')
         context_module = context_module_name.present? ? context_module_name.constantize : Object
 
-        context_module.const_set(context_class_name_part, Class.new(Servitium::Context))
+        context_module.const_set(context_class_name_part, Class.new(context_base_class_name.constantize))
         context_class
+      end
+
+      # Get the base class for new contexts defined using context blocks
+      # Defaults to Servitium::Context
+      def context_base_class_name
+        @_context_base_class_name ||= 'Servitium::Context'
+      end
+
+      # Override the base class for contexts defined using context blocks, you can use this to
+      # change the base class to your own ApplicationContext
+      def context_base_class_name=(base_class)
+        @_context_base_class_name = base_class
       end
 
       def context(*args, &block)
