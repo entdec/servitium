@@ -203,13 +203,13 @@ module Servitium
       # Get the base class for new contexts defined using context blocks
       # Defaults to Servitium::Context
       def context_base_class_name
-        @_context_base_class_name ||= 'Servitium::Context'
+        @@_context_base_class_name ||= 'Servitium::Context'
       end
 
       # Override the base class for contexts defined using context blocks, you can use this to
       # change the base class to your own ApplicationContext
       def context_base_class_name=(base_class)
-        @_context_base_class_name = base_class
+        @@_context_base_class_name = base_class
       end
 
       def context(*args, &block)
