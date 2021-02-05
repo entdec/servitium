@@ -145,7 +145,7 @@ module Servitium
 
         if valid_in
           inst.context.instance_variable_set(:@called, true)
-          Servitium::ServiceJob.perform_later(name, *[inst.context.attributes_hash])
+          Servitium::ServiceJob.perform_later(name, inst.context.attributes_hash)
         end
 
         inst.context

@@ -13,7 +13,8 @@ class ServitiumTest < ActiveSupport::TestCase
   end
 
   def test_sets_subcontexts
-    context = TestService.perform(servitium: 'hello', my_subcontext: { name: 'Tom' }, my_subcontexts: [{ name: 'Ivo' }, { name: 'Andre', withins: [{ colour: 'Orange' }, { colour: 'Cyan' }] }], other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
+    context = TestService.perform(servitium: 'hello', my_subcontext: { name: 'Tom' },
+                                  my_subcontexts: [{ name: 'Ivo' }, { name: 'Andre', withins: [{ colour: 'Orange' }, { colour: 'Cyan' }] }], other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
     assert context.success?
 
     assert_instance_of TestContext::MySubcontext, context.my_subcontext
@@ -48,7 +49,8 @@ class ServitiumTest < ActiveSupport::TestCase
   end
 
   def test_sets_subcontexts_attributes
-    context = TestService.perform(servitium: 'hello', my_subcontext_attributes: { name: 'Tom' }, my_subcontexts_attributes: [{ name: 'Ivo' }, { name: 'Andre', withins: [{ colour: 'Orange' }, { colour: 'Cyan' }] }], other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
+    context = TestService.perform(servitium: 'hello', my_subcontext_attributes: { name: 'Tom' },
+                                  my_subcontexts_attributes: [{ name: 'Ivo' }, { name: 'Andre', withins: [{ colour: 'Orange' }, { colour: 'Cyan' }] }], other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
     assert context.success?
 
     assert_instance_of TestContext::MySubcontext, context.my_subcontext
@@ -85,7 +87,10 @@ class ServitiumTest < ActiveSupport::TestCase
   def test_sets_subcontexts_attributes_nested_attributes
     context = TestService.perform(servitium: 'hello',
                                   my_subcontext_attributes: { name: 'Tom' },
-                                  my_subcontexts_attributes: { '0' => { name: 'Ivo' }, '1' => { name: 'Andre', withins_attributes: [{ colour: 'Orange' }, { colour: 'Cyan' }] } },
+                                  my_subcontexts_attributes: { '0' => { name: 'Ivo' },
+                                                               '1' => { name: 'Andre',
+                                                                        withins_attributes: [{ colour: 'Orange' },
+                                                                                             { colour: 'Cyan' }] } },
                                   other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
     assert context.success?
 
@@ -121,7 +126,8 @@ class ServitiumTest < ActiveSupport::TestCase
   end
 
   def test_validation_validates_subcontexts
-    context = TestValidationService.perform(my_subcontexts: [{ name: 'Tom' }, {}, { name: 'Andre', withins: [{ colour: 'Purple' }, { colour: 'Blue' }] }])
+    context = TestValidationService.perform(my_subcontexts: [{ name: 'Tom' }, {},
+                                                             { name: 'Andre', withins: [{ colour: 'Purple' }, { colour: 'Blue' }] }])
     assert context.failure?
 
     refute context.valid?

@@ -7,6 +7,7 @@ require 'active_job'
 
 module Servitium
   class Error < StandardError; end
+
   class ContextFailure < Servitium::Error; end
 end
 

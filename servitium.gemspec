@@ -29,17 +29,17 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'active_attr', '>= 0.15'
+  spec.add_dependency 'activejob', '> 5.1'
   spec.add_dependency 'activemodel', '> 5.1'
   spec.add_dependency 'activerecord', '> 5.1'
   spec.add_dependency 'activesupport', '> 5.1'
-  spec.add_dependency 'activejob', '> 5.1'
   spec.add_dependency 'i18n', '>= 0.7'
 
   spec.add_development_dependency 'auxilium', '~> 0.2'
-  spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'minitest', '~> 5.11'
   spec.add_development_dependency 'minitest-reporters', '~> 1.1'
   spec.add_development_dependency 'pry'
   spec.add_development_dependency 'pry-rails', '~> 0.3'
+  spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rubocop', '~> 0.79'
 end
