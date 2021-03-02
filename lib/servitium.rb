@@ -3,6 +3,7 @@
 require 'active_model'
 require 'active_attr'
 require 'active_support'
+require 'action_controller'
 require 'active_job'
 
 module Servitium

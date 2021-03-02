@@ -40,7 +40,7 @@ module Servitium
         define_method("#{name}_attributes=") do |attributes|
           klass = "#{self.class.name}::#{name.to_s.singularize.camelize}".safe_constantize
 
-          if attributes.is_a? Hash
+          if attributes.is_a?(Hash) || attributes.is_a?(ActionController::Parameters)
             keys = attributes.keys
             attributes = (attributes.values if keys.all? { |k| k.to_i.to_s == k })
           end
@@ -65,7 +65,7 @@ module Servitium
           result = if attributes.is_a?(Array) && attributes.all? { |a| a.instance_of?(klass) }
                      attributes
                    else
-                     if attributes.is_a? Hash
+                     if attributes.is_a?(Hash) || attributes.is_a?(ActionController::Parameters)
                        attributes = (attributes.values if attributes.keys.all? { |k| k.to_i.to_s == k })
                      end
 
