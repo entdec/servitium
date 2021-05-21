@@ -15,6 +15,7 @@ module Servitium
     alias ctx context
 
     define_callbacks :perform
+    define_callbacks :failure
     define_callbacks :async_success
     define_callbacks :async_failure
     private_class_method :new
@@ -40,6 +41,8 @@ module Servitium
           # This is the most close to expected behaviour this can get.
           raise ActiveRecord::Rollback if context.failed?
         end
+
+        failure if context.failed?
 
         context
       else
@@ -91,6 +94,11 @@ module Servitium
       return unless defined? Rails.logger
 
       Rails.logger.send level, "#{self.class.name}: #{message}"
+    end
+
+    def failure
+      run_callbacks :failure do
+      end
     end
 
     def async_success
@@ -162,6 +170,10 @@ module Servitium
 
       def after_perform(*filters, &block)
         set_callback(:perform, :after, *filters, &block)
+      end
+
+      def after_failure(*filters, &block)
+        set_callback(:failure, :after, *filters, &block)
       end
 
       def around_async_success(*filters, &block)
