@@ -42,8 +42,6 @@ module Servitium
           raise ActiveRecord::Rollback if context.failed?
         end
 
-        failure if context.failed?
-
         context
       else
         exec
@@ -115,11 +113,17 @@ module Servitium
       # Main point of entry for services, will raise in case of errors
       def perform!(*args)
         inst = new(*args)
-        inst.context.validate!(:in) if inst.context.class.inbound_scope_used
-        inst.context.validate!
-        inst.context.instance_variable_set(:@called, true)
-        inst.send(:call!)
-        inst.context.validate!(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
+
+        begin
+          inst.context.validate!(:in) if inst.context.class.inbound_scope_used
+          inst.context.validate!
+          inst.context.instance_variable_set(:@called, true)
+          inst.send(:call!)
+          inst.context.validate!(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
+        ensure
+          inst.send(:failure) if inst.context.failed?
+        end
+
         inst.context
       end
 
@@ -140,6 +144,8 @@ module Servitium
           inst.send(:call)
           inst.context.valid?(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
         end
+
+        inst.send(:failure) if inst.context.failed?
 
         inst
       end
