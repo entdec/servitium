@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class TestContext < Servitium::Context
   attribute :servitium
   attribute :result
@@ -5,6 +7,9 @@ class TestContext < Servitium::Context
 
   sub_context :my_subcontext
   sub_context :my_subcontexts
+end
+
+class TransactionalTestContext < TestContext
 end
 
 class TestContext::MySubcontext
@@ -24,10 +29,17 @@ end
 class TestService < Servitium::Service
   def perform
     context.result = context.servitium.reverse
-
     context.fail!('Pizza time!') if ctx.result == 'azzip'
-
     context.fail!(:servitium, :invalid, message: 'Mouse!') if ctx.result == 'esuom'
+  end
+end
+
+class TransactionalTestService < TestService
+  transactional true
+
+  def perform
+    context.result = Message.create(text: context.servitium)
+    raise 'Kaboom' if context.servitium == 'bomb'
   end
 end
 
