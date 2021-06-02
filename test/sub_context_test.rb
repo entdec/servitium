@@ -3,10 +3,6 @@
 require 'test_helper'
 
 class ServitiumTest < ActiveSupport::TestCase
-  def test_that_it_has_a_version_number
-    refute_nil ::Servitium::VERSION
-  end
-
   def test_initializes_contexts_correctly
     context = TestContext.new
     assert context.my_subcontexts.is_a?(Array)
