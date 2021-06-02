@@ -77,6 +77,7 @@ module Servitium
     end
 
     def raise_if_needed(e = nil)
+      raise e if e.present? && e.context.object_id != context.object_id
       return unless raise_on_error?
 
       if e
