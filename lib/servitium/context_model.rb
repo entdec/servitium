@@ -29,6 +29,8 @@ module Servitium
         message
       end
 
+      remove_method :model_name
+
       def model_name
         @model_name ||= ActiveModel::Name.new(self.class, nil, self.class.name.gsub('Context', ''))
       end

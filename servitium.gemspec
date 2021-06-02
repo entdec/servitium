@@ -43,4 +43,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'pry-rails', '~> 0.3'
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rubocop', '~> 0.79'
+  spec.add_development_dependency 'sqlite3', '~> 1.4'
 end

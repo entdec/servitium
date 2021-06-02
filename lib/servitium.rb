@@ -6,12 +6,8 @@ require 'active_support'
 require 'action_controller'
 require 'active_job'
 
-module Servitium
-  class Error < StandardError; end
-
-  class ContextFailure < Servitium::Error; end
-end
-
+require 'servitium/error'
+require 'servitium/context_failure'
 require 'servitium/i18n'
 require 'servitium/sub_contexts'
 require 'servitium/scoped_attributes'

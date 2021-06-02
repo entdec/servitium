@@ -5,6 +5,10 @@ require 'test_helper'
 class ServitiumTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
+  def setup
+    Message.destroy_all
+  end
+
   def test_that_it_has_a_version_number
     refute_nil ::Servitium::VERSION
   end
@@ -29,6 +33,39 @@ class ServitiumTest < ActiveSupport::TestCase
     assert context.failure?
     assert_equal ['Pizza time!'], context.errors.messages[:base]
     assert_equal 'azzip', context.result
+  end
+
+  def test_saving_data_in_a_transaction
+    context = TestTransactionalService.perform(servitium: 'hello world')
+    assert context.success?
+    assert_instance_of Message, context.result
+    assert_equal 'hello world', context.result.text
+
+    assert_equal 1, Message.count
+  end
+
+  def test_context_failure_will_rollback_transaction
+    context = TestTransactionalService.perform(servitium: 'hello')
+    assert context.failed?
+    assert_equal ['Oh noes'], context.errors[:base]
+
+    assert_equal 0, Message.count
+  end
+
+  def test_an_exception_ensures_a_rollback
+    assert_raises(StandardError, 'Kaboom') do
+      TestTransactionalService.perform(servitium: 'bomb')
+    end
+
+    assert_equal 0, Message.count
+  end
+
+  def test_a_context_failure_error_from_an_inside_service_ensures_a_rollback
+    assert_raises(Servitium::ContextFailure) do
+      context = TestTransactionalService.perform(servitium: 'pizza')
+    end
+
+    assert_equal 0, Message.count
   end
 
   def test_perform_later_enqueues_a_job

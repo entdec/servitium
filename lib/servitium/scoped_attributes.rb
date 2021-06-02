@@ -4,8 +4,6 @@ module Servitium
   class ScopedAttributes
     attr_reader :context, :store, :validation_context
 
-    delegate :validates, to: :context
-
     def initialize(context, store, validation_context = nil)
       @context = context
       @store = store

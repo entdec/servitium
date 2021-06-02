@@ -50,7 +50,7 @@ module Servitium
       elsif attr.is_a? ActiveModel::Errors
         errors.merge!(attr)
       elsif attr.is_a? Symbol
-        errors.add(attr, message, options)
+        errors.add(attr, message, **options)
       end
     end
 

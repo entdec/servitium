@@ -3,7 +3,9 @@
 module Servitium
   module I18n
     def t(key, passed_options = {})
-      unless @service_scope
+      @service_scope ||= nil
+
+      unless @service_scope.present?
         parts = (is_a?(Class) ? self : self.class).to_s.underscore.gsub('/', '.').split('.')
         parts[-1] = "#{parts.last.gsub('_service', '').pluralize}.service" if parts.last.end_with?('_service')
         parts[-1] = "#{parts.last.gsub('_context', '').pluralize}.context" if parts.last.end_with?('_context')
@@ -13,7 +15,7 @@ module Servitium
       options = { scope: @service_scope }
       options[:default] = ::I18n.t(key) unless key.start_with?('.')
 
-      ::I18n.t(key, options.merge(passed_options))
+      ::I18n.t(key, **options.merge(passed_options))
     end
   end
 end
