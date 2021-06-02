@@ -6,7 +6,14 @@ require 'servitium'
 require 'active_record'
 require 'minitest/autorun'
 require 'pry'
-require 'test_helpers/servitium_helpers'
+require 'support/validators/fake_validator'
+require 'support/models/message'
+require 'support/services/test_callbacks_service'
+require 'support/services/test_inline_context_service'
+require 'support/services/test_inline_simple_context_service'
+require 'support/services/test_service'
+require 'support/services/test_validation_service'
+require 'support/services/test_transactional_service'
 
 # We don't want logs to be spewed out to STDOUT during tests
 ActiveJob::Base.logger = Logger.new(nil)
@@ -21,5 +28,3 @@ ActiveRecord::Schema.define do
   end
 end
 
-class Message < ActiveRecord::Base
-end

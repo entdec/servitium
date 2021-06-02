@@ -36,7 +36,7 @@ class ServitiumTest < ActiveSupport::TestCase
   end
 
   def test_saving_data_in_a_transaction
-    context = TransactionalTestService.perform(servitium: 'hello')
+    context = TestTransactionalService.perform(servitium: 'hello')
     assert context.success?
     assert_instance_of Message, context.result
     assert_equal 'hello', context.result.text
@@ -45,12 +45,16 @@ class ServitiumTest < ActiveSupport::TestCase
   end
 
   def test_an_exception_ensures_a_rollback
-    begin
-      TransactionalTestService.perform(servitium: 'bomb')
-    rescue StandardError => e
-      assert_equal 'Kaboom', e.message
+    assert_raises(StandardError, 'Kaboom') do
+      TestTransactionalService.perform(servitium: 'bomb')
     end
 
+    assert_equal 0, Message.count
+  end
+
+  def test_a_context_failure_error_from_an_inside_service_ensures_a_rollback
+    context = TestTransactionalService.perform(servitium: 'pizza')
+    assert context.failed?
     assert_equal 0, Message.count
   end
 
