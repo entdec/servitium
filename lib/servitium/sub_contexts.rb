@@ -46,7 +46,7 @@ module Servitium
           end
 
           result = []
-          attributes.each do |params|
+          Array.wrap(attributes).each do |params|
             inst = klass.new(params)
             inst.supercontext = self
             result.push(inst)
@@ -70,7 +70,7 @@ module Servitium
                      end
 
                      result = []
-                     attributes.each do |params|
+                     Array.wrap(attributes).each do |params|
                        inst = klass.new(params)
                        inst.supercontext = self
                        result.push(inst)
