@@ -42,11 +42,15 @@ module Servitium
 
           if attributes.is_a?(Hash) || attributes.is_a?(ActionController::Parameters)
             keys = attributes.keys
-            attributes = (attributes.values if keys.all? { |k| k.to_i.to_s == k })
+            attributes = (if keys.reject { |k| k == 'TEMPLATE' }.all? { |k| k.to_i.to_s == k }
+                            attributes.reject do |k|
+                              k == 'TEMPLATE'
+                            end.values
+                          end)
           end
 
           result = []
-          Array.wrap(attributes).each do |params|
+          attributes.each do |params|
             inst = klass.new(params)
             inst.supercontext = self
             result.push(inst)
@@ -70,7 +74,7 @@ module Servitium
                      end
 
                      result = []
-                     Array.wrap(attributes).each do |params|
+                     attributes.each do |params|
                        inst = klass.new(params)
                        inst.supercontext = self
                        result.push(inst)
