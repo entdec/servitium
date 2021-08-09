@@ -51,6 +51,8 @@ module Servitium
 
           result = []
           attributes.each do |params|
+            next if params['_destroy'] == '1' || params[:_destroy] == '1'
+
             inst = klass.new(params)
             inst.supercontext = self
             result.push(inst)

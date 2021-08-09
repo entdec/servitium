@@ -80,6 +80,36 @@ class ServitiumTest < ActiveSupport::TestCase
     assert_instance_of Hash, context.other_hash
   end
 
+  def test_sets_subcontexts_attributes_filters_out_destroyed_subcontexts
+    context = TestService.perform(servitium: 'hello', my_subcontext_attributes: { name: 'Tom' },
+                                  my_subcontexts_attributes: [{ name: 'Ivo', '_destroy': '1' }, { 'name' => 'Klaas', '_destroy' => '1' }, { name: 'Andre', '_destroy': '', withins: [{ colour: 'Orange' }, { colour: 'Cyan' }] }], other_hash: { name: 'Sander', withins: [{ colour: 'Blue' }, { colour: 'Green' }] })
+    assert context.success?
+
+    assert_instance_of TestContext::MySubcontext, context.my_subcontext
+    assert_equal context, context.my_subcontext.supercontext
+    assert_equal 'Tom', context.my_subcontext.name
+    assert_equal [], context.my_subcontext.withins
+
+    assert_equal 1, context.my_subcontexts.size
+
+    subcontext = context.my_subcontexts.first
+    assert_equal context, subcontext.supercontext
+    assert_instance_of TestContext::MySubcontext, subcontext
+    assert_equal 'Andre', subcontext.name
+    assert_equal 2, subcontext.withins.size
+
+    within = subcontext.withins.first
+    assert_equal subcontext, within.supercontext
+    assert_instance_of TestContext::MySubcontext::Within, within
+    assert_equal 'Orange', within.colour
+    within = subcontext.withins.last
+    assert_equal subcontext, within.supercontext
+    assert_instance_of TestContext::MySubcontext::Within, within
+    assert_equal 'Cyan', within.colour
+
+    assert_instance_of Hash, context.other_hash
+  end
+
   def test_sets_subcontexts_attributes_nested_attributes
     context = TestService.perform(servitium: 'hello',
                                   my_subcontext_attributes: { name: 'Tom' },
