@@ -6,7 +6,7 @@ module Servitium
 
     def initialize(context)
       @context = context
-      super
+      super(context.errors.full_messages.join(', '))
     end
   end
 end
