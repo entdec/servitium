@@ -12,6 +12,7 @@ require 'support/services/test_callbacks_service'
 require 'support/services/test_inline_context_service'
 require 'support/services/test_inline_simple_context_service'
 require 'support/services/test_service'
+require 'support/services/test_queue_service'
 require 'support/services/test_validation_service'
 require 'support/services/test_transactional_service'
 

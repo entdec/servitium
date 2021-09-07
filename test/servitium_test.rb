@@ -69,7 +69,7 @@ class ServitiumTest < ActiveSupport::TestCase
   end
 
   def test_perform_later_enqueues_a_job
-    assert_enqueued_jobs 1, only: Servitium::ServiceJob do
+    assert_enqueued_jobs 1, only: Servitium::ServiceJob, queue: 'default' do
       context = TestService.perform_later(servitium: 'pancakes')
       assert context.success?
 
@@ -77,6 +77,16 @@ class ServitiumTest < ActiveSupport::TestCase
                            args: ['TestService',
                                   { 'servitium' => 'pancakes', 'result' => nil, 'other_hash' => nil,
                                     'my_subcontext' => nil, 'my_subcontexts' => [] }])
+    end
+  end
+
+  def test_perform_later_enqueues_a_job_to_designated_queue
+    assert_enqueued_jobs 1, only: Servitium::ServiceJob, queue: 'test_queue' do
+      context = TestQueueService.perform_later(servitium: 'pancakes')
+      assert context.success?
+
+      assert_enqueued_with(job: Servitium::ServiceJob,
+                           args: ['TestQueueService', { 'servitium' => 'pancakes' }])
     end
   end
 

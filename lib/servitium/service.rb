@@ -166,6 +166,10 @@ module Servitium
         inst.context
       end
 
+      def queue_name
+        'default'
+      end
+
       # Callbacks
       def before_perform(*filters, &block)
         set_callback(:perform, :before, *filters, &block)

@@ -2,6 +2,8 @@
 
 module Servitium
   class ServiceJob < ActiveJob::Base
+    queue_as { queue_name }
+
     def perform(class_name, *args)
       service = class_name.constantize.call(*args)
 
@@ -10,6 +12,10 @@ module Servitium
       else
         service.send(:async_failure)
       end
+    end
+
+    def queue_name
+      arguments.first.constantize.queue_name
     end
   end
 end
