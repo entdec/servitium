@@ -62,7 +62,7 @@ class ServitiumTest < ActiveSupport::TestCase
 
   def test_a_context_failure_error_from_an_inside_service_ensures_a_rollback
     assert_raises(Servitium::ContextFailure) do
-      context = TestTransactionalService.perform(servitium: 'pizza')
+      TestTransactionalService.perform(servitium: 'pizza')
     end
 
     assert_equal 0, Message.count
