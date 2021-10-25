@@ -14,6 +14,7 @@ module Servitium
 
     alias ctx context
 
+    define_callbacks :commit
     define_callbacks :perform
     define_callbacks :failure
     define_callbacks :async_success
@@ -95,6 +96,11 @@ module Servitium
       Rails.logger.send level, "#{self.class.name}: #{message}"
     end
 
+    def after_commit
+      run_callbacks :commit do
+      end
+    end
+
     def failure
       run_callbacks :failure do
       end
@@ -121,6 +127,7 @@ module Servitium
           inst.context.instance_variable_set(:@called, true)
           inst.send(:call!)
           inst.context.validate!(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
+          inst.send(:after_commit) unless inst.context.failed?
         ensure
           inst.send(:failure) if inst.context.failed?
         end
@@ -144,6 +151,7 @@ module Servitium
           inst.context.instance_variable_set(:@called, true)
           inst.send(:call)
           inst.context.valid?(:out) if inst.context.errors.blank? && inst.context.class.inbound_scope_used
+          inst.send(:after_commit) unless inst.context.failed?
         end
 
         inst.send(:failure) if inst.context.failed?
@@ -171,6 +179,10 @@ module Servitium
       end
 
       # Callbacks
+      def after_commit(*filters, &block)
+        set_callback(:commit, :after, *filters, &block)
+      end
+
       def before_perform(*filters, &block)
         set_callback(:perform, :before, *filters, &block)
       end
