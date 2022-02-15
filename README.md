@@ -20,12 +20,15 @@ An implementation of the command pattern for Ruby
 
 - Transations
   By default transactions are disabled, but you can include the following in your ApplicationService
+
   ```ruby
   transactional true
   ```
 
+  In case transactions are enabled after_commit will triger after after_peform
+
 - Asynchronous execution
-  Instead of calling perform you can use perform\_later to execute a service asynchronously, this uses ActiveJob.
+  Instead of calling perform you can use perform_later to execute a service asynchronously, this uses ActiveJob.
 
 ## Installation
 
