@@ -36,10 +36,17 @@ module Servitium
 
     def call
       if transactional && defined?(ActiveRecord::Base)
-        ActiveRecord::Base.transaction(requires_new: true) do
+        if ActiveRecord::Base.connection.transaction_open?
+          ActiveRecord::Base.transaction(requires_new: true) do
+            exec
+            # This will only rollback the changes of the service, SILENTLY, however the context will be failed? already.
+            # This is the most close to expected behaviour this can get.
+            raise ActiveRecord::Rollback if context.failed?
+          end
+        else
+          # We are already in a open transaction, so we can just execute the service.
+          # This is to prevent errors like this: PG::InFailedSqlTransaction: ERROR:  current transaction is aborted, commands ignored until end of transaction block
           exec
-          # This will only rollback the changes of the service, SILENTLY, however the context will be failed? already.
-          # This is the most close to expected behaviour this can get.
           raise ActiveRecord::Rollback if context.failed?
         end
 
