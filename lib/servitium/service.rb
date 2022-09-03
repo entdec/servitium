@@ -67,7 +67,7 @@ module Servitium
         # If capture exceptions is true, eat the exception and set the context errors.
         raise unless capture_exceptions
 
-        context.errors.add(:base, e.message)
+        context.fail!(:base, e.message)
       end
       raise_if_needed
       context
