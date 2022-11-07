@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'actionpack', '> 5.1'
   spec.add_dependency 'i18n', '>= 0.7'
 
-  spec.add_development_dependency 'auxilium', '~> 0.2'
+  spec.add_development_dependency 'auxilium'
   spec.add_development_dependency 'minitest', '~> 5.11'
   spec.add_development_dependency 'minitest-reporters', '~> 1.1'
   spec.add_development_dependency 'pry'
