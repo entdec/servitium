@@ -5,6 +5,7 @@ require 'active_attr'
 require 'active_support'
 require 'action_controller'
 require 'active_job'
+require 'sidekiq'
 
 require 'servitium/error'
 require 'servitium/context_failure'
@@ -24,11 +25,13 @@ require 'servitium/rails' if defined?(::Rails)
 
 module Servitium
   class << self
-    attr_reader :config
-
     def setup
       @config = Configuration.new
       yield config
+    end
+
+    def config
+      @config ||= Configuration.new
     end
   end
 end
