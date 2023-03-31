@@ -13,8 +13,22 @@ require 'servitium/sub_contexts'
 require 'servitium/scoped_attributes'
 require 'servitium/context_model'
 require 'servitium/context'
-require 'servitium/service_job'
+require 'servitium/service_active_job'
+require 'servitium/service_sidekiq_job'
 require 'servitium/service'
 require 'servitium/version'
+require 'servitium/configuration'
 
 require 'servitium/rails' if defined?(::Rails)
+
+
+module Servitium
+  class << self
+    attr_reader :config
+
+    def setup
+      @config = Configuration.new
+      yield config
+    end
+  end
+end

@@ -172,7 +172,12 @@ module Servitium
 
         if valid_in
           inst.context.instance_variable_set(:@called, true)
-          Servitium::ServiceJob.perform_later(name, inst.context.attributes_hash)
+
+          if Servitium.config.bg_jobs_platform == :sidekiq
+            Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, inst.context.attributes_hash)  
+          else
+            Servitium::ServiceActiveJob.perform_later(name, inst.context.attributes_hash)
+          end
         end
 
         inst.context
