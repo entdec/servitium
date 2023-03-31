@@ -176,7 +176,7 @@ module Servitium
           if Servitium.config.bg_jobs_platform == :sidekiq
             Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, inst.context.attributes_hash)  
           else
-            Servitium::ServiceActiveJob.perform_later(name, inst.context.attributes_hash)
+            Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name, inst.context.attributes_hash)
           end
         end
 
