@@ -42,5 +42,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 12.0'
   spec.add_development_dependency 'rubocop', '~> 0.79'
   spec.add_development_dependency 'sqlite3', '~> 1.4'
-  spec.add_development_dependency 'sidekiq', '< 7'
+  spec.add_development_dependency 'sidekiq', '~> 7'
 end
