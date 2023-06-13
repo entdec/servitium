@@ -141,12 +141,7 @@ module Servitium
 
       # Main point of entry for services
       def perform(*args)
-        if args.first.is_a?(Hash)
-          formatted_args = [ActionController::Parameters.new(args.first.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v })]
-        else
-          formatted_args = [ActionController::Parameters.new(args.first.to_unsafe_h.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v })]
-        end
-        call(*formatted_args).context
+        call(*args).context
       end
 
       # Call the service returning the service instance
@@ -168,6 +163,14 @@ module Servitium
 
       # Perform this service async
       def perform_later(*args)
+        if args.blank?
+          formatted_args = args
+        elsif args.first.is_a?(Hash)
+          formatted_args = args.first.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }.with_indifferent_access.to_h
+        else
+          formatted_args = args.first.to_unsafe_h.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }.with_indifferent_access.to_h
+        end
+
         inst = new(*args)
 
         valid_in = inst.context.valid?
@@ -177,9 +180,9 @@ module Servitium
           inst.context.instance_variable_set(:@called, true)
 
           if Servitium.config.bg_jobs_platform == :sidekiq
-            Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, inst.context.attributes_hash)  
+            Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, formatted_args)
           else
-            Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name, inst.context.attributes_hash)
+            Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name, formatted_args)
           end
         end
 
