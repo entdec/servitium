@@ -172,7 +172,7 @@ module Servitium
         end
 
         inst = new(*args)
-
+        formatted_args.merge!({ 'current_user_id' => Current.user.id })
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
 
@@ -182,7 +182,7 @@ module Servitium
           if Servitium.config.bg_jobs_platform == :sidekiq
             Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, formatted_args)
           else
-            Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name, formatted_args)
+            Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name,  inst.context.attributes_hash)
           end
         end
 
