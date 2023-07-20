@@ -121,6 +121,14 @@ module Servitium
     end
 
     class << self
+      def perform_async(*args)
+        perform_later(*args)
+      end
+
+      def perform_sync(*args)
+        perform(*args)
+      end
+
       # Main point of entry for services, will raise in case of errors
       def perform!(*args)
         inst = new(*args)
