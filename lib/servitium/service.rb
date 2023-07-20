@@ -174,9 +174,9 @@ module Servitium
         if args.blank?
           formatted_args = args
         elsif args.first.is_a?(Hash)
-          formatted_args = args.first.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }.with_indifferent_access.to_h
+          formatted_args = JSON.load(JSON.dump(args.first.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }))
         else
-          formatted_args = args.first.to_unsafe_h.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }.with_indifferent_access.to_h
+          formatted_args = JSON.load(JSON.dump(args.first.to_unsafe_h.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }))
         end
 
         inst = new(*args)
