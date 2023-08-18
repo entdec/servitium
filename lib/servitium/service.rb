@@ -180,7 +180,7 @@ module Servitium
         end
 
         inst = new(*args)
-        formatted_args.merge!({ 'current_user_id' => Current.user.id })
+        formatted_args.merge!({ 'current_user_id' => Current.user.id, 'current_location_id' => Current.location.id})
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
 
