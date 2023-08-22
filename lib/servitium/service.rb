@@ -180,8 +180,9 @@ module Servitium
           inst.context.instance_variable_set(:@called, true)
 
           if Servitium.config.bg_jobs_platform == :sidekiq
-            formatted_args = inst.context.attributes_hash
-            formatted_args = formatted_args.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }
+            # formatted_args = inst.context.attributes_hash
+            # formatted_args = formatted_args.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v } 
+            formatted_args = JSON.load(JSON.dump(inst.context.attributes_hash.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }))      
             Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, formatted_args)
           else
             Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name,  inst.context.attributes_hash)
