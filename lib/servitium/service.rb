@@ -171,16 +171,8 @@ module Servitium
 
       # Perform this service async
       def perform_later(*args)
-        if args.blank?
-          formatted_args = args
-        elsif args.first.is_a?(Hash)
-          formatted_args = JSON.load(JSON.dump(args.first.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }))
-        else
-          formatted_args = JSON.load(JSON.dump(args.first.to_unsafe_h.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }))
-        end
 
         inst = new(*args)
-        formatted_args.merge!({ 'current_user_id' => Current.user.id })
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
 
@@ -188,6 +180,8 @@ module Servitium
           inst.context.instance_variable_set(:@called, true)
 
           if Servitium.config.bg_jobs_platform == :sidekiq
+            formatted_args = inst.context.attributes_hash
+            formatted_args = formatted_args.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }
             Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, formatted_args)
           else
             Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name,  inst.context.attributes_hash)

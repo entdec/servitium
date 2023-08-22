@@ -3,9 +3,7 @@
 module Servitium
   class ServiceSidekiqJob
     include Sidekiq::Job
-
     def perform(class_name, *args)
-      Current.user = User.find(args[0]['current_user_id'])
       service = class_name.constantize.call(*args)
 
       if service.context.success?
