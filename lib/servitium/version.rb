@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module Servitium
-  VERSION = "1.2.25"
+  VERSION = "1.2.26"
 end
