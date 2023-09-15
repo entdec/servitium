@@ -171,7 +171,6 @@ module Servitium
 
       # Perform this service async
       def perform_later(*args)
-
         inst = new(*args)
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
@@ -180,15 +179,44 @@ module Servitium
           inst.context.instance_variable_set(:@called, true)
 
           if Servitium.config.bg_jobs_platform == :sidekiq
-            formatted_args = inst.context.attributes_hash
-            formatted_args = formatted_args.transform_values { |v| v.is_a?(ActiveRecord::Base) ? v.id : v }
+            formatted_args = JSON.load(JSON.dump(format_args(inst.context.attributes_hash)))
             Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, formatted_args)
           else
-            Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name,  inst.context.attributes_hash)
+            Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name, inst.context.attributes_hash)
           end
         end
 
         inst.context
+      end
+
+      def format_args(hash)
+        hash.transform_values! do |v|
+          case v
+          when ActiveRecord::Base
+            v.id
+          when Hash
+            format_args(v)
+          when Array
+            format_array(v)
+          else
+            v
+          end
+        end
+      end
+
+      def format_array(array)
+        array.map do |ele|
+          case ele
+          when ActiveRecord::Base
+            ele.id
+          when Hash
+            format_args(ele)
+          when Array
+            format_array(ele)
+          else
+            ele
+          end
+        end
       end
 
       def queue_name
