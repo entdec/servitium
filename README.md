@@ -103,6 +103,15 @@ Services can also run in the background:
 ExampleService.perform_later(some: 'test') # => #<ExampleContext>
 ```
 
+You can use the generator to generate service code: 
+```
+❯ rails g servitium:service Example
+
+      create  app/services/example_service.rb
+      create  app/services/example_context.rb
+      create  test/services/example_service_test.rb
+```
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
