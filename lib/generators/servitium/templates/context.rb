@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class <%= name %>Context < ApplicationContext
-  attribute :some, type: :string, default: 'new'
+  attribute :some, type: String, default: 'new'
 
   validates :some, presence: true
 

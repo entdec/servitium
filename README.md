@@ -48,7 +48,60 @@ Or install it yourself as:
 
 ## Usage
 
-See tests for usage examples.
+You define a context for the service, which describes what goes in and out
+```ruby
+class ExampleContext < ApplicationContext
+  attribute :some, type: String, default: "new"
+
+  validates :some, presence: true
+end
+```
+
+You can be very explicit in what goes in our out:
+```ruby
+class ExampleContext < ApplicationContext
+  input do
+    attribute :some, type: String, default: "new"
+    validates :some, presence: true
+  end
+  output do
+    attribute :some, type: String, default: "new"
+  end
+end
+```
+
+And you define the service itself:
+```ruby
+class ExampleService < ApplicationService
+  def perform
+    context.some.reverse!
+  end
+end
+```
+
+You can also include the context in the service, for less complicated services:
+
+```ruby
+class ExampleService < ApplicationService
+  context do
+    attribute :some, type: :string, default: "new"
+  end
+  def perform
+    context.some.reverse!
+  end
+end
+```
+
+Next you use it as follows:
+```ruby
+ExampleService.perform(some: 'test').some # => tset
+```
+A service always returns it context
+
+Services can also run in the background:
+```ruby
+ExampleService.perform_later(some: 'test') # => #<ExampleContext>
+```
 
 ## License
 
