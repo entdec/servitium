@@ -10,7 +10,7 @@ module Servitium
     include CaptureExceptionsMixin
     include I18n
 
-    attr_reader :context, :raise_on_error
+    attr_reader :context, :job, :raise_on_error
 
     alias ctx context
 
@@ -27,6 +27,7 @@ module Servitium
 
     def initialize(*args)
       @raise_on_error = false
+      @job = args.shift if args.first.is_a?(Servitium::ServiceActiveJob) || args.first.is_a?(Servitium::ServiceSidekiqJob)
       @command = args.first.is_a?(Symbol) ? args.shift : :perform
       @context = context_class.new(*args)
       super()
@@ -192,14 +193,14 @@ module Servitium
       def format_args(hash)
         hash.transform_values! do |v|
           case v
-          when ActiveRecord::Base
-            v.id
-          when Hash
-            format_args(v)
-          when Array
-            format_array(v)
-          else
-            v
+            when ActiveRecord::Base
+              v.id
+            when Hash
+              format_args(v)
+            when Array
+              format_array(v)
+            else
+              v
           end
         end
       end
@@ -207,14 +208,14 @@ module Servitium
       def format_array(array)
         array.map do |ele|
           case ele
-          when ActiveRecord::Base
-            ele.id
-          when Hash
-            format_args(ele)
-          when Array
-            format_array(ele)
-          else
-            ele
+            when ActiveRecord::Base
+              ele.id
+            when Hash
+              format_args(ele)
+            when Array
+              format_array(ele)
+            else
+              ele
           end
         end
       end

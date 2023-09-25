@@ -14,6 +14,8 @@ require 'servitium/sub_contexts'
 require 'servitium/scoped_attributes'
 require 'servitium/context_model'
 require 'servitium/context'
+require 'servitium/job_metrics'
+require 'servitium/batch'
 require 'servitium/service_active_job'
 require 'servitium/service_sidekiq_job'
 require 'servitium/service'
@@ -21,7 +23,6 @@ require 'servitium/version'
 require 'servitium/configuration'
 
 require 'servitium/rails' if defined?(::Rails)
-
 
 module Servitium
   class << self

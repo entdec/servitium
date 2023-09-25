@@ -2,7 +2,10 @@
 
 module Servitium
   class ServiceActiveJob < ActiveJob::Base
+    include Servitium::JobMetrics
+
     def perform(class_name, *args)
+      args.prepend(self)
       service = class_name.constantize.call(*args)
 
       if service.context.success?

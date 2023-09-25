@@ -3,15 +3,15 @@
 require_relative 'lib/servitium/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'servitium'
-  spec.version       = Servitium::VERSION
-  spec.authors       = ['Tom de Grunt']
-  spec.email         = ['tom@degrunt.nl']
+  spec.name = 'servitium'
+  spec.version = Servitium::VERSION
+  spec.authors = ['Tom de Grunt']
+  spec.email = ['tom@degrunt.nl']
 
-  spec.summary       = 'Service objects'
-  spec.description   = 'An implementation of the command pattern for Ruby'
-  spec.homepage      = 'https://entropydecelerator.com/components/servitium'
-  spec.license       = 'MIT'
+  spec.summary = 'Service objects'
+  spec.description = 'An implementation of the command pattern for Ruby'
+  spec.homepage = 'https://entropydecelerator.com/components/servitium'
+  spec.license = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.6.5')
 
   spec.metadata['homepage_uri'] = spec.homepage
@@ -22,8 +22,8 @@ Gem::Specification.new do |spec|
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   end
-  spec.bindir        = 'exe'
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.bindir = 'exe'
+  spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
   spec.add_dependency 'active_attr', '>= 0.15'
@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '> 5.1'
   spec.add_dependency 'actionpack', '> 5.1'
   spec.add_dependency 'i18n', '>= 0.7'
+  spec.add_dependency 'redis-rb', '>= 4.0'
 
   spec.add_development_dependency 'auxilium', '>= 3'
   spec.add_development_dependency 'minitest', '~> 5.11'

@@ -3,7 +3,10 @@
 module Servitium
   class ServiceSidekiqJob
     include Sidekiq::Job
+    include Servitium::JobMetrics
+
     def perform(class_name, *args)
+      args.prepend(self)
       service = class_name.constantize.call(*args)
 
       if service.context.success?
