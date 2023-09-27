@@ -32,6 +32,9 @@ module Servitium
         batch_id = Servitium.generate_batch_id
 
         begin
+          Thread.current['servitium_batch_job_count'] ||= 0
+          Thread.current['servitium_batch_job_count'] = Thread.current['servitium_batch_job_count'] + 1
+
           datastore['batch_info'] = {
             'id': batch_id,
             'callbacks': [],
@@ -43,6 +46,8 @@ module Servitium
           Servitium::Batch.add_member("batch_#{batch_id}")
           yield if block_given?
         ensure
+          Thread.current['servitium_batch_job_count'] = Thread.current['servitium_batch_job_count'] - 1
+
           Servitium.clear_datastore
 
           redis_key = "servitium:batch:#{batch_id}"
@@ -133,6 +138,12 @@ module Servitium
       get('batch_info')
     end
 
+    def valid_batch_info?(hash)
+      return false unless hash.is_a?(Hash) && hash['batch_info'].is_a?(Hash)
+
+      hash['batch_info']['id'].present?
+    end
+
     def self.add_member(id)
       return if Servitium.datastore.nil?
 
@@ -144,6 +155,15 @@ module Servitium
           transaction.expire(redis_key, SECONDS_IN_DAY * 30)
         end
       end
+    end
+
+    def self.ignore_job?(klass)
+      klass = klass.name if klass.is_a?(Class)
+      return false if klass.blank?
+
+      return false if Servitium::Batch.info.present? && Servitium::Batch.info['caller'][0] == klass
+
+      Servitium.config.ignore_list.include?(klass)
     end
 
     class TransactionCallback

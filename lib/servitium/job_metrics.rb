@@ -25,13 +25,11 @@ module Servitium
     module ActiveJobClassMethods
       def serialize
         result = super
-        datastore = Servitium.datastore || HashWithIndifferentAccess.new
-        result['arguments'].prepend(datastore.as_json)
+        result['arguments'] = Servitium.wrap_arguments(result['arguments']) unless Servitium::Batch.ignore_job?(self)
         result
       end
 
       def deserialize(job_data)
-        Servitium.datastore = job_data['arguments'].shift
         super(job_data)
       end
 
@@ -46,12 +44,13 @@ module Servitium
     class SidekiqClient < Sidekiq::Client
       def raw_push(payloads)
         payloads.each do |payload|
+          next if Servitium::Batch.ignore_job?(payload['class'])
+
           Servitium::Batch.add_member("job_#{payload['jid']}")
-          datastore = Servitium.datastore || HashWithIndifferentAccess.new
           if payload.key?('args')
-            payload['args'].prepend(datastore.as_json)
+            payload['args'] = Servitium.wrap_arguments(payload['args']).as_json
           elsif payload.key?('arguments')
-            payload['arguments'].prepend(datastore.as_json)
+            payload['arguments'] = Servitium.wrap_arguments(payload['arguments']).as_json
           end
         end
 
@@ -87,44 +86,52 @@ module Servitium
     end
 
     def perform(*args)
-      unless args.first.is_a?(Hash) && Servitium.datastore.nil?
-        return super(*args)
-      end
-
-      job_id = if respond_to?(:job_id)
-                 self.job_id
-               elsif respond_to?(:jid)
-                 jid
-               end
+      return super(*Servitium.extract_arguments(*args)) if Servitium::Batch.ignore_job?(self)
 
       begin
-        Servitium.datastore = args.shift
-        super(*args)
+        Thread.current['servitium_batch_job_count'] ||= 0
+        Thread.current['servitium_batch_job_count'] = Thread.current['servitium_batch_job_count'] + 1
+
+        if Thread.current['servitium_batch_job_count'] == 1
+          Servitium.datastore = Servitium.extract_datastore(*args)
+        end
+        super(*Servitium.extract_arguments(*args))
       ensure
-        batch_info = Servitium::Batch.info || {}
-        datastore = Servitium.datastore || {}
-        Servitium.clear_datastore
+        Thread.current['servitium_batch_job_count'] = Thread.current['servitium_batch_job_count'] - 1
 
-        redis_key = "servitium:batch:#{batch_info['id']}"
-        if job_id.present?
-          begin
-            transaction = Servitium.redis.multi do |transaction|
-              transaction.scard(redis_key)
-              transaction.srem(redis_key, "job_#{job_id}")
-            end
-            job_count = transaction[0].to_i - transaction[1].to_i
+        if Thread.current['servitium_batch_job_count'].zero?
+          batch_info = Servitium::Batch.info || {}
+          datastore = Servitium.datastore || {}
+          Servitium.clear_datastore
 
-            if job_count == 0
-              Servitium.redis.del(redis_key)
-              Servitium.run_batch_callbacks(batch_info, :complete, datastore)
+          job_id = if respond_to?(:job_id)
+                     self.job_id
+                   elsif respond_to?(:jid)
+                     jid
+                   end
+
+          if batch_info['id'].present? && job_id.present?
+            redis_key = "servitium:batch:#{batch_info['id']}"
+
+            begin
+              transaction = Servitium.redis.multi do |transaction|
+                transaction.scard(redis_key)
+                transaction.srem(redis_key, "job_#{job_id}")
+              end
+              job_count = transaction[0].to_i - transaction[1].to_i
+
+              if job_count.zero?
+                Servitium.redis.del(redis_key)
+                Servitium.run_batch_callbacks(batch_info, :complete, datastore)
+              end
+            rescue StandardError => e
+              # Ignored
             end
-          rescue
+
+            Servitium.run_batch_callbacks(batch_info, :job_complete, job_id, datastore)
           end
-
-          Servitium.run_batch_callbacks(batch_info, :job_complete, job_id, datastore)
         end
       end
-
     end
   end
 
@@ -170,16 +177,9 @@ module Servitium
     ##
     # Get the redis instance that is used for batch processing.
     def redis
-      redis_url = if Servitium.config.redis_url.is_a?(Hash)
-                    Servitium.config.redis_url[Rails.env.to_sym]
-                  else
-                    Servitium.config.redis_url&.to_s
-                  end
       @redis ||= ConnectionPool::Wrapper.new do
-        Redis.new(url: redis_url)
+        Redis.new(url: Servitium.config.redis_url)
       end
-    rescue StandardError
-
     end
 
     ##
@@ -194,6 +194,25 @@ module Servitium
       else
         Servitium.datastore = nil
       end
+    end
+
+    def wrap_arguments(arguments)
+      return arguments unless Servitium.datastore.present?
+
+      [['$servitium_datastore', Servitium.datastore.as_json], arguments]
+    end
+
+    def extract_datastore(*args)
+      return unless args.length == 2 && args[0].is_a?(Array) && args[0][0] == '$servitium_datastore'
+
+      datastore = args[0][1] || HashWithIndifferentAccess.new
+      datastore.as_json
+    end
+
+    def extract_arguments(*args)
+      return args unless args.length == 2 && args[0].is_a?(Array) && args[0][0] == '$servitium_datastore'
+
+      args[1]
     end
   end
 end
