@@ -268,39 +268,28 @@ module Servitium
         name.gsub('Service', 'Context')
       end
 
-      def context_class!
+      def context_class!(*args)
         return context_class if context_class
-
         context_class_parts = context_class_name.split('::')
         context_class_name_part = context_class_parts.pop
         context_module_name = context_class_parts.join('::')
         context_module = context_module_name.present? ? context_module_name.constantize : Object
-
+        context_base_class_name = args.first[:base_class] if args.first&.key?(:base_class)
+        context_base_class_name ||= self.superclass.to_s.gsub('Service', 'Context')
+        context_base_class_name ||= 'Servitium::Context'
         context_module.const_set(context_class_name_part, Class.new(context_base_class_name.constantize))
         context_class
-      end
-
-      # Get the base class for new contexts defined using context blocks
-      # Defaults to Servitium::Context
-      def context_base_class_name
-        @@_context_base_class_name ||= 'Servitium::Context'
-      end
-
-      # Override the base class for contexts defined using context blocks, you can use this to
-      # change the base class to your own ApplicationContext
-      def context_base_class_name=(base_class)
-        @@_context_base_class_name = base_class
       end
 
       def context(*args, &block)
         return initialized_context(*args) unless block_given?
 
         begin
-          context_class!.new
+          context_class!(*args).new
         rescue StandardError
           nil
         end
-        context_class!.class_eval(&block)
+        context_class!(*args).class_eval(&block)
       end
 
       def initialized_context(*args)
