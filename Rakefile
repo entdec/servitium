@@ -12,7 +12,3 @@ end
 Rake.add_rakelib 'lib/tasks'
 
 task default: :test
-
-# Adds the Auxilium semver task
-spec = Gem::Specification.find_by_name 'auxilium'
-load "#{spec.gem_dir}/lib/tasks/semver.rake"

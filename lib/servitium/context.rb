@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
+require 'active_model/naming'
+require 'active_model/translation'
+
 module Servitium
   class Context
     extend ActiveModel::Callbacks
+    extend ActiveModel::Naming
+    extend ActiveModel::Translation
 
     include Servitium::ContextModel
 

@@ -10,13 +10,13 @@ class ValidationTest < ActiveSupport::TestCase
     ctx = TestInlineContextService.context(test1: 1)
     assert_equal false, ctx.valid?(:in)
 
-    ctx = TestInlineContextService.context(test1: 1, in: 1)
+    ctx = TestInlineContextService.context(test1: 1, in_attr:1)
     assert_equal true, ctx.valid?, ctx.errors.full_messages
 
-    ctx = TestInlineContextService.context(test1: 1, in: 1)
+    ctx = TestInlineContextService.context(test1: 1, in_attr:1)
     assert_equal false, ctx.valid?(:out)
 
-    ctx = TestInlineContextService.context(test1: 1, out: 1)
+    ctx = TestInlineContextService.context(test1: 1, out_attr:1)
     assert_equal true, ctx.valid?(:out), ctx.errors.full_messages
   end
 
