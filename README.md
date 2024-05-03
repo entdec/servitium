@@ -91,6 +91,11 @@ class ExampleService < ApplicationService
   end
 end
 ```
+You can also override context base class like this
+```ruby
+context base_class: 'ApplicationContext' do
+end
+```
 
 Next you use it as follows:
 ```ruby
