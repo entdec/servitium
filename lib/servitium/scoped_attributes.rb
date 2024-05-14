@@ -10,9 +10,9 @@ module Servitium
       @validation_context = validation_context
     end
 
-    def attribute(name, *args)
+    def attribute(name, *)
       store << name.to_s
-      context.send(:attribute, name, *args)
+      context.send(:attribute, name, *)
     end
 
     def validates(name, options = {})
@@ -20,9 +20,9 @@ module Servitium
       context.send(:validates, name, options)
     end
 
-    def validate(name, options = {}, &block)
+    def validate(name, options = {}, &)
       options[:on] ||= validation_context if validation_context
-      context.send(:validate, name, options, &block)
+      context.send(:validate, name, options, &)
     end
 
     def call(block)

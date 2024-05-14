@@ -7,5 +7,6 @@ class TestInlineSimpleContextService < Servitium::Service
     validates :test1, fake: true
   end
 
-  def perform; end
+  def perform
+  end
 end

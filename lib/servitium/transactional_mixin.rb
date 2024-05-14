@@ -14,10 +14,10 @@ module Servitium
         @transactional = nil unless defined?(@transactional)
         if @transactional.nil?
           @transactional = if superclass < Servitium::Service
-                             superclass.transactional
-                           else
-                             false
-                           end
+            superclass.transactional
+          else
+            false
+          end
         end
         @transactional
       end
