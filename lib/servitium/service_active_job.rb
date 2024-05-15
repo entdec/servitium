@@ -2,8 +2,8 @@
 
 module Servitium
   class ServiceActiveJob < ActiveJob::Base
-    def perform(class_name, *args)
-      service = class_name.constantize.call(*args)
+    def perform(class_name, *)
+      service = class_name.constantize.call(*)
 
       if service.context.success?
         service.send(:async_success)

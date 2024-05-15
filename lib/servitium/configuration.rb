@@ -3,8 +3,7 @@
 module Servitium
   class Configuration
     attr_accessor :bg_jobs_platform
-    attr_writer :logger,
-
+    attr_writer :logger
     def initialize
       @logger = Logger.new(STDOUT)
       @logger.level = Logger::INFO
