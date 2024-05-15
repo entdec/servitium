@@ -26,10 +26,18 @@ module Servitium
     delegate :model_name, to: :context
 
     def initialize(*args)
+      super(*args)
       @raise_on_error = false
-      @command = args.first.is_a?(Symbol) ? args.shift : :perform
-      @context = context_class.new(*args)
-      super()
+      puts "*" * 80
+      pp caller.first(2)
+      pp args
+      # binding.break
+      # @command = args.first.is_a?(Symbol) ? args.shift : :perform
+      puts "args.first: #{args.first == self.class}"
+      # binding.break if args.first.to_s == "TestService"
+      @context = context_class.new(*args) unless args.first.is_a?(self.class)
+      puts "*" * 80
+      @context
     end
 
     private
@@ -60,7 +68,7 @@ module Servitium
 
     def exec
       run_callbacks :perform do
-        send(@command)
+        perform
       rescue Servitium::ContextFailure => e
         raise_if_needed(e)
       rescue => e
@@ -121,13 +129,6 @@ module Servitium
     end
 
     class << self
-      def perform_async(*)
-        perform_later(*)
-      end
-
-      def perform_sync(*)
-        perform(*)
-      end
 
       # Main point of entry for services, will raise in case of errors
       def perform!(*)
@@ -149,11 +150,13 @@ module Servitium
 
       # Main point of entry for services
       def perform(*)
+        puts "perform"
         call(*).context
       end
 
       # Call the service returning the service instance
       def call(*)
+        puts "call"
         inst = new(*)
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
@@ -170,25 +173,23 @@ module Servitium
       end
 
       # Perform this service async
-      def perform_later(*)
-        inst = new(*)
+      def perform_later(...)
+        puts "perform_later"
+        inst = new(...)
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
 
         if valid_in
-          super(*args)
+          super(...)
+          # FIXME: Do something with enqueue result?
           inst.context.instance_variable_set(:@called, true)
-
-          # if Servitium.config.bg_jobs_platform == :sidekiq
-          #   formatted_args = JSON.load(JSON.dump(format_args(inst.context.attributes_hash)))
-          #   Servitium::ServiceSidekiqJob.set(queue: name.constantize.queue_name).perform_async(name, formatted_args)
-          # else
-          #   Servitium::ServiceActiveJob.set(queue: name.constantize.queue_name).perform_later(name, inst.context.attributes_hash)
-          # end
         end
 
         inst.context
       end
+
+      alias_method :perform_async, :perform_later
+      alias_method :perform_sync, :perform
 
       # Callbacks
       def after_commit(*filters, &)
