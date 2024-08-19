@@ -268,7 +268,7 @@ module Servitium
         name.gsub("Service", "Context")
       end
 
-      def context_class!(*)
+      def context_class!(*args)
         return context_class if context_class
 
         context_class_parts = context_class_name.split("::")
@@ -290,7 +290,7 @@ module Servitium
         rescue
           nil
         end
-        context_class!(*).class_eval(&block)
+        context_class!(*).class_eval(&)
       end
 
       def initialized_context(*)
