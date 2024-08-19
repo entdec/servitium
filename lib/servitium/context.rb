@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
+require "active_model/naming"
+require "active_model/translation"
+
 module Servitium
   class Context
     extend ActiveModel::Callbacks
+    extend ActiveModel::Naming
+    extend ActiveModel::Translation
 
     include Servitium::ContextModel
 
@@ -13,9 +18,9 @@ module Servitium
     define_callbacks :perform
 
     def initialize(*args)
-      @success     = true
-      @called      = false
-      @errors      = ActiveModel::Errors.new(self)
+      @success = true
+      @called = false
+      @errors = ActiveModel::Errors.new(self)
       @subcontexts = {}
 
       run_callbacks :initialize do
@@ -31,8 +36,8 @@ module Servitium
       !success?
     end
 
-    alias fail? failure?
-    alias failed? failure?
+    alias_method :fail?, :failure?
+    alias_method :failed?, :failure?
 
     def fail!(attr, message = :invalid, options = {})
       @success = false

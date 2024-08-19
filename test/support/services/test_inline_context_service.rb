@@ -6,13 +6,13 @@ class TestInlineContextService < Servitium::Service
     attribute :test2
 
     input do
-      attribute :in
-      validates :in, presence: true
+      attribute :in_attr
+      validates :in_attr, presence: true
     end
 
     output do
-      attribute :out
-      validates :out, presence: true
+      attribute :out_attr
+      validates :out_attr, presence: true
     end
 
     after_initialize :init_vars

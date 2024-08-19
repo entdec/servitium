@@ -14,10 +14,10 @@ module Servitium
         @capture_exceptions = nil unless defined?(@capture_exceptions)
         if @capture_exceptions.nil?
           @capture_exceptions = if superclass < Servitium::Service
-                                  superclass.capture_exceptions
-                                else
-                                  false
-                                end
+            superclass.capture_exceptions
+          else
+            false
+          end
         end
         @capture_exceptions
       end

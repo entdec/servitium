@@ -10,6 +10,6 @@ class TestQueueService < Servitium::Service
   end
 
   def self.queue_name
-    'test_queue'
+    "test_queue"
   end
 end

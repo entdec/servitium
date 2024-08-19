@@ -8,10 +8,10 @@ class TestCallbacksContext < Servitium::Context
   attribute :result
 
   before_validation do
-    self.result = 'bv'
+    self.result = "bv"
   end
 
   after_validation do
-    self.result += 'av'
+    self.result += "av"
   end
 end

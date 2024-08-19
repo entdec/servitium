@@ -25,14 +25,14 @@ module Servitium
 
       def inspect
         message = super
-        message += " (success: #{success?}, valid: #{@errors.size.zero?}, errors: #{@errors.full_messages.join(', ')})"
+        message += " (success: #{success?}, valid: #{@errors.size.zero?}, errors: #{@errors.full_messages.join(", ")})"
         message
       end
 
       remove_method :model_name
 
       def model_name
-        @model_name ||= ActiveModel::Name.new(self.class, nil, self.class.name.gsub('Context', ''))
+        @model_name ||= ActiveModel::Name.new(self.class, nil, self.class.name.gsub("Context", ""))
       end
 
       def id
@@ -53,13 +53,14 @@ module Servitium
         end.to_h
       end
 
-      def _destroy; end
+      def _destroy
+      end
 
       private
 
       def validate_subcontexts
         @subcontexts.each do |key, value|
-          errors.add(key, 'invalid') unless [*value].find_all { |v| v.respond_to?(:invalid?) && v.invalid? }.empty?
+          errors.add(key, "invalid") unless [*value].find_all { |v| v.respond_to?(:invalid?) && v.invalid? }.empty?
         end
       end
 

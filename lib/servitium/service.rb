@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_relative 'transactional_mixin'
-require_relative 'capture_exceptions_mixin'
+require_relative "transactional_mixin"
+require_relative "capture_exceptions_mixin"
 
 module Servitium
   class Service
@@ -12,7 +12,7 @@ module Servitium
 
     attr_reader :context, :raise_on_error
 
-    alias ctx context
+    alias_method :ctx, :context
 
     define_callbacks :commit
     define_callbacks :perform
@@ -63,7 +63,7 @@ module Servitium
         send(@command)
       rescue Servitium::ContextFailure => e
         raise_if_needed(e)
-      rescue StandardError => e
+      rescue => e
         # If capture exceptions is true, eat the exception and set the context errors.
         raise unless capture_exceptions
 
@@ -88,7 +88,7 @@ module Servitium
       if e
         raise e
       elsif context.errors.present?
-        errors = context.errors.full_messages.join(', ')
+        errors = context.errors.full_messages.join(", ")
         log :error, "raising: #{errors}"
         raise StandardError, errors
       end
@@ -121,17 +121,17 @@ module Servitium
     end
 
     class << self
-      def perform_async(*args)
-        perform_later(*args)
+      def perform_async(*)
+        perform_later(*)
       end
 
-      def perform_sync(*args)
-        perform(*args)
+      def perform_sync(*)
+        perform(*)
       end
 
       # Main point of entry for services, will raise in case of errors
-      def perform!(*args)
-        inst = new(*args)
+      def perform!(*)
+        inst = new(*)
 
         begin
           inst.context.validate!(:in) if inst.context.class.inbound_scope_used
@@ -148,13 +148,13 @@ module Servitium
       end
 
       # Main point of entry for services
-      def perform(*args)
-        call(*args).context
+      def perform(*)
+        call(*).context
       end
 
       # Call the service returning the service instance
-      def call(*args)
-        inst = new(*args)
+      def call(*)
+        inst = new(*)
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
         if valid_in
@@ -170,8 +170,8 @@ module Servitium
       end
 
       # Perform this service async
-      def perform_later(*args)
-        inst = new(*args)
+      def perform_later(*)
+        inst = new(*)
         valid_in = inst.context.valid?
         valid_in &&= inst.context.valid?(:in) if inst.context.class.inbound_scope_used
 
@@ -220,44 +220,44 @@ module Servitium
       end
 
       def queue_name
-        'default'
+        "default"
       end
 
       # Callbacks
-      def after_commit(*filters, &block)
-        set_callback(:commit, :after, *filters, &block)
+      def after_commit(*filters, &)
+        set_callback(:commit, :after, *filters, &)
       end
 
-      def before_perform(*filters, &block)
-        set_callback(:perform, :before, *filters, &block)
+      def before_perform(*filters, &)
+        set_callback(:perform, :before, *filters, &)
       end
 
-      def around_perform(*filters, &block)
-        set_callback(:perform, :around, *filters, &block)
+      def around_perform(*filters, &)
+        set_callback(:perform, :around, *filters, &)
       end
 
-      def after_perform(*filters, &block)
-        set_callback(:perform, :after, *filters, &block)
+      def after_perform(*filters, &)
+        set_callback(:perform, :after, *filters, &)
       end
 
-      def after_failure(*filters, &block)
-        set_callback(:failure, :after, *filters, &block)
+      def after_failure(*filters, &)
+        set_callback(:failure, :after, *filters, &)
       end
 
-      def around_async_success(*filters, &block)
-        set_callback(:async_success, :around, *filters, &block)
+      def around_async_success(*filters, &)
+        set_callback(:async_success, :around, *filters, &)
       end
 
-      def around_async_failure(*filters, &block)
-        set_callback(:async_failure, :around, *filters, &block)
+      def around_async_failure(*filters, &)
+        set_callback(:async_failure, :around, *filters, &)
       end
 
-      def after_async_success(*filters, &block)
-        set_callback(:async_success, :after, *filters, &block)
+      def after_async_success(*filters, &)
+        set_callback(:async_success, :after, *filters, &)
       end
 
-      def after_async_failure(*filters, &block)
-        set_callback(:async_failure, :after, *filters, &block)
+      def after_async_failure(*filters, &)
+        set_callback(:async_failure, :after, *filters, &)
       end
 
       def context_class
@@ -265,35 +265,36 @@ module Servitium
       end
 
       def context_class_name
-        name.gsub('Service', 'Context')
+        name.gsub("Service", "Context")
       end
 
-      def context_class!(*args)
+      def context_class!(*)
         return context_class if context_class
-        context_class_parts = context_class_name.split('::')
+
+        context_class_parts = context_class_name.split("::")
         context_class_name_part = context_class_parts.pop
-        context_module_name = context_class_parts.join('::')
+        context_module_name = context_class_parts.join("::")
         context_module = context_module_name.present? ? context_module_name.constantize : Object
         context_base_class_name = args.first[:base_class] if args.first&.key?(:base_class)
-        context_base_class_name ||= self.superclass.to_s.gsub('Service', 'Context')
-        context_base_class_name ||= 'Servitium::Context'
+        context_base_class_name ||= superclass.to_s.gsub("Service", "Context")
+        context_base_class_name ||= "Servitium::Context"
         context_module.const_set(context_class_name_part, Class.new(context_base_class_name.constantize))
         context_class
       end
 
-      def context(*args, &block)
-        return initialized_context(*args) unless block_given?
+      def context(*, &)
+        return initialized_context(*) unless block_given?
 
         begin
-          context_class!(*args).new
-        rescue StandardError
+          context_class!(*).new
+        rescue
           nil
         end
-        context_class!(*args).class_eval(&block)
+        context_class!(*).class_eval(&block)
       end
 
-      def initialized_context(*args)
-        context_class.new(*args)
+      def initialized_context(*)
+        context_class.new(*)
       end
     end
   end
