@@ -10,7 +10,7 @@ module Servitium
 
     module ClassMethods
       def transactional(value = nil)
-        @transactional = value if value
+        @transactional = value unless value.nil?
         @transactional = nil unless defined?(@transactional)
         if @transactional.nil?
           @transactional = if superclass < Servitium::Service
