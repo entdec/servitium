@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "active_attr", ">= 0.15"
+  spec.add_dependency "active_attr", "> 0.17"
   spec.add_dependency "activejob", "> 7"
   spec.add_dependency "activemodel", "> 7"
   spec.add_dependency "activerecord", "> 7"
