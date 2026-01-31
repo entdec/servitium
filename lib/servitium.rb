@@ -3,6 +3,7 @@
 require "active_model"
 require "active_attr"
 require "active_support"
+require "servitium/rails8_value_dirty_compat"
 require "action_controller"
 require "active_job"
 require "sidekiq"

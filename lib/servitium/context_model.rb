@@ -56,7 +56,30 @@ module Servitium
       def _destroy
       end
 
+      # Rails 8 ActiveModel::Dirty expects attribute values to respond to +changed_in_place?+
+      # (e.g. when using NumericalityValidator). ActiveAttr stores raw values, so we ensure
+      # every value in @attributes responds to it. write_attribute covers normal writes;
+      # apply_defaults covers defaults (ActiveAttr writes those directly to @attributes).
+      def write_attribute(name, value)
+        ensure_changed_in_place!(value)
+        super
+      end
+
+      def apply_defaults(defaults = attribute_defaults)
+        super
+        (@attributes || {}).each_value { |value| ensure_changed_in_place!(value) }
+      end
+
       private
+
+      def ensure_changed_in_place!(value)
+        return if value.nil? || value.respond_to?(:changed_in_place?)
+
+        value.define_singleton_method(:changed_in_place?) { false }
+      rescue TypeError
+        # Integer, Float, Symbol, true, false, nil etc. can't get singleton methods;
+        # they use the class-level method from rails8_value_dirty_compat.
+      end
 
       def validate_subcontexts
         @subcontexts.each do |key, value|
